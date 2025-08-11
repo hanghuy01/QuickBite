@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  quickbite:
+    image: postgres:15.0
+    container_name: quickbite
+    ports:
+      - 5434:5432 #{port in host (my PC)} {port in Container} #environment variables, like: db's username, password...
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: quickbite
+    networks:
+      - nestjs-network
+
+networks:
+  nestjs-network:
+#docker compose up -d
