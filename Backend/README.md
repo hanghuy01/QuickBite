@@ -35,7 +35,7 @@ yarn start:dev
 
 ⚖️ Decisions & Trade-offs
 
-Dùng PostgreSQL.
+Dùng PostgreSQL và đang dùng docker để chạy postpgre.
 
 Dùng class-validator để đảm bảo dữ liệu đầu vào đúng chuẩn.
 
