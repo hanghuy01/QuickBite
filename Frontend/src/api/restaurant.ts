@@ -1,7 +1,5 @@
 import { api } from "@/lib/axios";
-
-export type Restaurant = { id: number; name: string; category: string; imageUrl?: string };
-export type MenuItem = { id: number; name: string; price: number; restaurantId: number };
+import { MenuItem, Restaurant } from "@/types/types";
 
 const RESTAURANT_API_URL = "/restaurants";
 

@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginForm, loginSchema } from "@/schemas/auth";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/constants/routes";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -21,9 +22,7 @@ export default function LoginScreen() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-
-      // Chuyển sang Home
-      router.replace("/(tabs)");
+      router.replace(ROUTES.TABS.ROOT);
     } catch (err: any) {
       console.log(err.response?.data || err.message);
     }
@@ -73,7 +72,7 @@ export default function LoginScreen() {
         Đăng nhập
       </Button>
 
-      <Button mode="text" onPress={() => router.push("/(auth)/register")}>
+      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.REGISTER)}>
         Chưa có tài khoản? Đăng ký
       </Button>
     </View>

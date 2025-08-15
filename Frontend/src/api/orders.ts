@@ -1,14 +1,5 @@
 import { api } from "@/lib/axios";
-
-export type CreateOrderDto = {
-  restaurantId: number;
-  items: { menuItemId: number; quantity: number }[];
-};
-export type Order = {
-  id: number;
-  status: "pending" | "confirmed" | "preparing" | "on_the_way" | "delivered" | "cancelled";
-  createdAt: string;
-};
+import { CreateOrderDto, Order } from "@/types/types";
 
 const ORDER_API_URL = "/orders";
 

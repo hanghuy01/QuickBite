@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { RegisterForm, registerSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/constants/routes";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -88,7 +89,7 @@ export default function RegisterScreen() {
         Đăng ký
       </Button>
 
-      <Button mode="text" onPress={() => router.push("/(auth)/login")}>
+      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.LOGIN)}>
         Đã có tài khoản? Đăng nhập
       </Button>
     </View>

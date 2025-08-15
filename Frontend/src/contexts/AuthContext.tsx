@@ -2,7 +2,7 @@ import { loginApi, registerApi } from "@/api/auth.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
-type User = { email: string; name: string } | null;
+type User = { id: number; email: string; name: string } | null;
 
 interface AuthContextType {
   isLoggedIn: boolean;

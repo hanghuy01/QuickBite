@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { PaperProvider } from "react-native-paper";
@@ -25,12 +26,14 @@ function InnerLayout() {
 export default function RootLayout() {
   return (
     <PaperProvider>
-      <AuthProvider>
-        <CartProvider>
-          <InnerLayout />
-          {/* <Stack screenOptions={{ headerShown: false }} /> */}
-        </CartProvider>
-      </AuthProvider>
+      <QueryClientProvider client={new QueryClient()}>
+        <AuthProvider>
+          <CartProvider>
+            <InnerLayout />
+            {/* <Stack screenOptions={{ headerShown: false }} /> */}
+          </CartProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </PaperProvider>
   );
 }
