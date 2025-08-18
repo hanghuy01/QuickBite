@@ -7,6 +7,9 @@ export class CreateOrderDto {
   @IsNumber()
   restaurantId: number;
 
+  @IsNumber()
+  totalAmount: number;
+
   @IsArray()
   items: { menuItemId: number; quantity: number }[];
 }

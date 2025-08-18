@@ -3,9 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { User } from '@/auth/entities/user.entity';
-import { Restaurant } from '@/restaurants/entities/restaurant.entity'; //src/auth/entities/user.entity.ts và src/users/entities/user.entity.ts
+import { Restaurant } from '@/restaurants/entities/restaurant.entity';
 
 @Injectable()
 export class OrdersService {
@@ -30,6 +29,7 @@ export class OrdersService {
     const order = this.ordersRepo.create({
       user,
       restaurant,
+      totalAmount: dto.totalAmount,
       items: dto.items,
       status: 'pending',
     });
@@ -41,15 +41,22 @@ export class OrdersService {
     return this.ordersRepo.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const order = await this.ordersRepo.findOne({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
-  async update(id: number, dto: UpdateOrderDto) {
-    const order = await this.findOne(id);
-    Object.assign(order, dto);
+  async updateStatus(orderId: string, status: string) {
+    const order = await this.ordersRepo.findOne({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    order.status = status;
     return this.ordersRepo.save(order);
   }
 }

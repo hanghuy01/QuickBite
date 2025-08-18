@@ -1,9 +1,17 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-// import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './passport/jwt-auth.guard';
+import { JwtRequest } from './types';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -47,9 +55,10 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get('profile')
-  // getProfile(@Request() req: any) {
-  //   return req.user;
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: JwtRequest) {
+    const userId = req.user.userId; // Lấy từ JWT payload
+    return this.authService.getProfile(userId);
+  }
 }

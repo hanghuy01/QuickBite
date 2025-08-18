@@ -11,14 +11,17 @@ import { User } from '@/users/entities/user.entity';
 
 @Entity()
 export class Order {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'jsonb' })
   items: any[]; // [{ menuItemId: number, quantity: number }]
 
   @Column({ default: 'pending' })
   status: string; // pending, confirmed, delivered, cancelled
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  totalAmount: number;
 
   @CreateDateColumn()
   createdAt: Date;

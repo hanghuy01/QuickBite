@@ -16,6 +16,9 @@ export class MenuItem {
   @Column({ nullable: true })
   description: string;
 
+  @Column()
+  image: string;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menuItems, {
     onDelete: 'CASCADE',
   })

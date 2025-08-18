@@ -8,11 +8,13 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -54,6 +56,10 @@ export class RestaurantsController {
           id: 'c9f5d8b2-1a2b-4c3d-9e0f-123456789abc',
           name: 'Pizza Palace',
           description: 'Best pizza in town',
+          location: {
+            lat: 10.7769,
+            lon: 106.6959,
+          },
           address: '180/77 Nguyen Huu Canh',
           imageUrl: 'https://example.com/pizza.jpg',
           menu: [
@@ -69,8 +75,8 @@ export class RestaurantsController {
       ],
     },
   })
-  findAll() {
-    return this.restaurantsService.findAll();
+  findAll(@Query() query: FindAllRestaurantsDto) {
+    return this.restaurantsService.findAll(query);
   }
 
   @Get(':id')

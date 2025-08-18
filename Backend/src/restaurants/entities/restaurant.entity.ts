@@ -10,14 +10,27 @@ export class Restaurant {
   @Column({ unique: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
+
+  @Column('json', { nullable: true })
+  location: {
+    latitude: number;
+    longitude: number;
+  };
 
   @Column({ nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  category: string;
+
+  @Column({ nullable: true })
+  image: string;
+
   @OneToMany(() => MenuItem, (menuItem) => menuItem.restaurant, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   menuItems: MenuItem[];
 
