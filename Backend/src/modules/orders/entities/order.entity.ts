@@ -6,8 +6,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Restaurant } from '@/restaurants/entities/restaurant.entity';
-import { User } from '@/users/entities/user.entity';
+import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
+import { User } from '@/modules/users/entities/user.entity';
 
 @Entity()
 export class Order {

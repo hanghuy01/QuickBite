@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { seedRestaurants } from './seeds/restaurant.seed';
-import { Restaurant } from './restaurants/entities/restaurant.entity';
-import { MenuItem } from './menu/entities/menu-item.entity';
-import { User } from './users/entities/user.entity';
-import { Order } from './orders/entities/order.entity';
+import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
+import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
+import { User } from '@/modules/users/entities/user.entity';
+import { Order } from '@/modules/orders/entities/order.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',

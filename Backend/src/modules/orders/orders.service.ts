@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { User } from '@/auth/entities/user.entity';
-import { Restaurant } from '@/restaurants/entities/restaurant.entity';
+import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
 
 @Injectable()
 export class OrdersService {

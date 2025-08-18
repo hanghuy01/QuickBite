@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { MenuItem } from '../../menu/entities/menu-item.entity';
-import { Order } from '@/orders/entities/order.entity';
+import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
+import { Order } from '@/modules/orders/entities/order.entity';
 
 @Entity()
 export class Restaurant {
