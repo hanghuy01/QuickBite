@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text, TextInput, Button } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
@@ -28,9 +28,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineLarge">Đăng nhập</Text>
-
+    <>
       {/* Email */}
       <Controller
         control={control}
@@ -67,19 +65,35 @@ export default function LoginScreen() {
       {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
       {/* Submit */}
-      <Button mode="contained" onPress={handleSubmit(onSubmit)} loading={isSubmitting} style={{ marginTop: 20 }}>
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={isSubmitting}
+        style={styles.loginBtn}
+        contentStyle={{ paddingVertical: 6 }}
+      >
         Đăng nhập
       </Button>
 
-      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.REGISTER)}>
+      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.REGISTER)} textColor="#FF5722">
         Chưa có tài khoản? Đăng ký
       </Button>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff", justifyContent: "center" },
-  input: { marginBottom: 10 },
-  error: { color: "red", marginBottom: 5 },
+  input: {
+    marginBottom: 10,
+    backgroundColor: "#fff",
+  },
+  error: {
+    color: "red",
+    marginBottom: 5,
+  },
+  loginBtn: {
+    marginTop: 20,
+    borderRadius: 8,
+    backgroundColor: "#FF5722",
+  },
 });

@@ -1,10 +1,10 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text, TextInput, Button } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
-import { RegisterForm, registerSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RegisterForm, registerSchema } from "@/schemas/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/constants";
 
@@ -22,16 +22,14 @@ export default function RegisterScreen() {
   const onSubmit = async (data: RegisterForm) => {
     try {
       await register(data);
-      router.push(ROUTES.AUTH.LOGIN); // Chuyển về trang đăng nhập
+      router.push(ROUTES.AUTH.LOGIN);
     } catch (err: any) {
       console.log(err.response?.data || err.message);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineLarge">Đăng ký</Text>
-
+    <>
       {/* Name */}
       <Controller
         control={control}
@@ -84,19 +82,35 @@ export default function RegisterScreen() {
       {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
       {/* Submit */}
-      <Button mode="contained" onPress={handleSubmit(onSubmit)} loading={isSubmitting} style={{ marginTop: 20 }}>
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={isSubmitting}
+        style={styles.btn}
+        contentStyle={{ paddingVertical: 6 }}
+      >
         Đăng ký
       </Button>
 
-      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.LOGIN)}>
+      <Button mode="text" onPress={() => router.push(ROUTES.AUTH.LOGIN)} textColor="#FF5722">
         Đã có tài khoản? Đăng nhập
       </Button>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff", justifyContent: "center" },
-  input: { marginBottom: 10 },
-  error: { color: "red", marginBottom: 5 },
+  input: {
+    marginBottom: 10,
+    backgroundColor: "#fff",
+  },
+  error: {
+    color: "red",
+    marginBottom: 5,
+  },
+  btn: {
+    marginTop: 20,
+    borderRadius: 8,
+    backgroundColor: "#FF5722",
+  },
 });
