@@ -2,14 +2,11 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import { Avatar, List, Button } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 import { profileApi } from "@/api/auth.api";
-import { api } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
-import { ROUTES } from "@/constants/routes";
+import { fetchMyOrder } from "@/api/orders";
 
 export default function ProfileScreen() {
-  const router = useRouter();
   const { logout } = useAuth();
 
   const { data: me } = useQuery({
@@ -23,8 +20,8 @@ export default function ProfileScreen() {
   const { data: orders } = useQuery({
     queryKey: ["myOrders"],
     queryFn: async () => {
-      const res = await api.get(`${ROUTES.ORDER.ROOT}?userId=${me.id}`);
-      return res.data;
+      const res = await fetchMyOrder(me.id);
+      return res;
     },
     enabled: !!me,
   });
@@ -45,19 +42,12 @@ export default function ProfileScreen() {
               key={o.id}
               title={`Order #${o.id}`}
               description={`Status: ${o.status}`}
-              onPress={() => router.push(`/order/${o.id}` as any)}
+              // onPress={() => router.push(`/order/${o.id}` as any)}
             />
           ))}
         </List.Section>
 
-        <Button
-          mode="outlined"
-          onPress={() => {
-            // Xử lý logout
-            logout();
-          }}
-          style={{ margin: 20 }}
-        >
+        <Button mode="outlined" onPress={logout} icon="logout" style={{ margin: 20 }} compact>
           Logout
         </Button>
       </ScrollView>

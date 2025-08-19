@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, type ReactNode } from "reac
 
 type CartItem = {
   menuItemId: number;
+  nameRestaurant: string;
   name: string;
   price: number;
   quantity: number;
@@ -31,6 +32,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addItem = (item: CartItem) => {
     setState((prev) => {
+      // Nếu có restaurantId khác, reset lại giỏ hàng (vì liên quan đến shipping)
       if (prev.restaurantId && prev.restaurantId !== item.restaurantId) {
         return { items: [item], restaurantId: item.restaurantId, total: item.price * item.quantity };
       }

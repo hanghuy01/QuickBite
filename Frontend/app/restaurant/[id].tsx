@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRestaurant } from "@/api/restaurant";
 import { Restaurant } from "@/types/types";
+import { ROUTES } from "@/constants";
 
 export default function RestaurantDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -78,6 +79,7 @@ export default function RestaurantDetail() {
                     onPress={() =>
                       addItem({
                         menuItemId: item.id,
+                        nameRestaurant: data.name,
                         name: item.name,
                         price: item.price,
                         quantity: 1,
@@ -101,8 +103,8 @@ export default function RestaurantDetail() {
         style={styles.cartButton}
         onPress={() =>
           router.push({
-            pathname: "/(tabs)/cart",
-            params: { from: `/restaurant/${id}` },
+            pathname: ROUTES.TABS.CART,
+            params: { from: ROUTES.RESTAURANT.DETAILS(+id) },
           })
         }
       >

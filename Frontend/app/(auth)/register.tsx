@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { RegisterForm, registerSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -22,8 +22,7 @@ export default function RegisterScreen() {
   const onSubmit = async (data: RegisterForm) => {
     try {
       await register(data);
-
-      //Chuyển về Home
+      router.push(ROUTES.AUTH.LOGIN); // Chuyển về trang đăng nhập
     } catch (err: any) {
       console.log(err.response?.data || err.message);
     }

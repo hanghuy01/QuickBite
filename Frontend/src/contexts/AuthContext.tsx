@@ -2,7 +2,7 @@ import { loginApi, registerApi } from "@/api/auth.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
-type User = { id: number; email: string; name: string } | null;
+type User = { id: number; email: string; name: string; role: "ADMIN" | "USER" } | null;
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -59,16 +59,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await registerApi({ email, password, name });
 
-      if (!res || !res.access_token) {
+      //{"message": "User registered successfully"} nào trả về access_token thì bật lên
+      if (!res) {
         throw new Error("Registration failed");
       }
 
-      const { access_token, user } = res;
-      // Lưu token và user
-      await AsyncStorage.setItem("token", access_token);
-      await AsyncStorage.setItem("user", JSON.stringify(user));
+      // const { access_token, user } = res;
+      // // Lưu token và user
+      // await AsyncStorage.setItem("token", access_token);
+      // await AsyncStorage.setItem("user", JSON.stringify(user));
 
-      setUser(user);
+      // setUser(user);
     } catch (err) {
       console.error("Registration error", err);
       throw err;

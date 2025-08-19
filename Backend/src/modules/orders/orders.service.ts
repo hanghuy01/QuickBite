@@ -47,6 +47,14 @@ export class OrdersService {
     return order;
   }
 
+  async findMyOrder(userId: number) {
+    const order = await this.ordersRepo.find({
+      where: { user: { id: userId } },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
   async updateStatus(orderId: string, status: string) {
     const order = await this.ordersRepo.findOne({
       where: { id: orderId },

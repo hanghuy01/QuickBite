@@ -5,29 +5,30 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCart } from "@/contexts/CartContext";
 import { createOrder } from "@/api/orders";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES, RouteString } from "@/constants";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function CartScreen() {
-  const { user } = useAuth(); // Giả sử bạn có user trong context hoặc state
+  const { user } = useAuth();
   const { state, removeItem, clearCart } = useCart();
   const qc = useQueryClient();
-  const { from } = useLocalSearchParams<{ from?: string }>(); // để quay lại đúng RestaurantDetail
+  const { from } = useLocalSearchParams<{ from?: RouteString }>();
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createOrder,
     onSuccess: (order) => {
       clearCart();
       qc.invalidateQueries({ queryKey: ["orders"] }); // Cập nhật danh sách đơn hàng đã cũ
-      router.push(`${ROUTES.ORDER.TRACK}/${order.id}` as any);
+      router.push(ROUTES.ORDER.TRACK(order.id));
     },
   });
 
   const checkout = async () => {
-    if (!state.restaurantId || state.items.length === 0 || !user) return;
+    if (!state.restaurantId || state.items.length === 0 || !user || !state.total) return;
 
     await mutateAsync({
       userId: user.id,
+      totalAmount: +state.total.toFixed(2),
       restaurantId: state.restaurantId,
       items: state.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
     });
@@ -46,7 +47,7 @@ export default function CartScreen() {
         <Appbar.BackAction
           onPress={() => {
             if (from) {
-              router.replace(from as any); // Quay lại đúng RestaurantDetail
+              router.replace(from); // Quay lại đúng RestaurantDetail
             } else {
               router.back();
             }
@@ -61,7 +62,10 @@ export default function CartScreen() {
           keyExtractor={(i) => String(i.menuItemId)}
           renderItem={({ item }) => (
             <Card style={{ marginBottom: 12 }}>
-              <Card.Title title={item.name} subtitle={`x${item.quantity} • $${item.price}`} />
+              <Card.Title title={item.nameRestaurant} titleStyle={{ fontWeight: "bold" }} subtitle={item.name} />
+              <Card.Content>
+                <Text variant="bodyMedium">{`x${item.quantity} • $${item.price}`}</Text>
+              </Card.Content>
               <Card.Actions>
                 <Button onPress={() => removeItem(item.menuItemId)}>Remove</Button>
               </Card.Actions>

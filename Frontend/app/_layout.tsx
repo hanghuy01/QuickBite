@@ -1,3 +1,4 @@
+import { ROUTES } from "@/constants";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,20 +7,22 @@ import React, { useEffect } from "react";
 import { PaperProvider } from "react-native-paper";
 
 function InnerLayout() {
-  const { isLoggedIn, loading } = useAuth();
+  const { loading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
-    if (!isLoggedIn) {
-      router.replace("/(auth)/login");
+
+    if (!user) {
+      router.replace(ROUTES.AUTH.LOGIN);
+    } else if (user?.role === "ADMIN") {
+      router.replace(ROUTES.ADMIN.ROOT);
     } else {
-      router.replace("/(tabs)");
+      router.replace(ROUTES.TABS.ROOT);
     }
-  }, [isLoggedIn, loading, router]);
+  }, [loading, router, user]);
 
   if (loading) return null;
-
   return <Slot />;
 }
 

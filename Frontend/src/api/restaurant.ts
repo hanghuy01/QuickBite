@@ -3,8 +3,8 @@ import { MenuItem, Restaurant } from "@/types/types";
 
 const RESTAURANT_API_URL = "/restaurants";
 
-export const fetchRestaurants = async (q?: string, category?: string) => {
-  const res = await api.get<Restaurant[]>(RESTAURANT_API_URL, { params: { q, category } });
+export const fetchRestaurants = async (q?: string, category?: string, lat?: number, lon?: number) => {
+  const res = await api.get<Restaurant[]>(RESTAURANT_API_URL, { params: { q, category, lat, lon } });
   return res.data;
 };
 export const fetchRestaurant = async (id: string | number) => {

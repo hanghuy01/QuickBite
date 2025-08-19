@@ -1,8 +1,12 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { ROUTES } from "@/constants";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 
 export default function TabsLayout() {
+  useProtectedRoute({ redirectTo: ROUTES.AUTH.LOGIN });
+
   return (
     <Tabs screenOptions={{ headerShown: true }}>
       <Tabs.Screen

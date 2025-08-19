@@ -22,6 +22,11 @@ export class OrdersController {
     return this.ordersService.findOne(id);
   }
 
+  @Get('my/:id')
+  findMyOrder(@Param('id') id: string) {
+    return this.ordersService.findMyOrder(+id);
+  }
+
   @Patch(':id/status')
   updateOrderStatus(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
     return this.ordersService.updateStatus(id, dto.status);

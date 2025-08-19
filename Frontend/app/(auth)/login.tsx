@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginForm, loginSchema } from "@/schemas/auth";
 import { useAuth } from "@/contexts/AuthContext";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -22,7 +22,6 @@ export default function LoginScreen() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-      router.replace(ROUTES.TABS.ROOT);
     } catch (err: any) {
       console.log(err.response?.data || err.message);
     }
