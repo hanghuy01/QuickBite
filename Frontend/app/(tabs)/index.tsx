@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList } from "react-native";
-import { Searchbar, Chip, Card, Text, ActivityIndicator, Title } from "react-native-paper";
+import { View, FlatList, StyleSheet } from "react-native";
+import { Searchbar, Chip, Text, ActivityIndicator, Title } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
-import { FontAwesome } from "@expo/vector-icons";
-import { Link } from "expo-router";
 import { fetchRestaurants } from "@/api/restaurant";
 import { Restaurant } from "@/types/types";
 import { getUserLocation } from "@/utils/location";
+import RestaurantCard from "@/components/RestaurantCard";
 import { ROUTES } from "@/constants";
+import { router } from "expo-router";
 
 const CATEGORIES = ["All", "Pizza", "Sushi", "Drinks"];
 
@@ -20,21 +20,15 @@ export default function HomeScreen() {
   const [address, setAddress] = useState<string>("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["restaurants", debouncedSearch, cat, coords], // q dùng thêm debounce
+    queryKey: ["restaurants", debouncedSearch, cat, coords],
     queryFn: () => fetchRestaurants(debouncedSearch, cat === "All" ? undefined : cat, coords?.lat, coords?.lon),
   });
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(q);
-    }, 300); // debounce 300ms
-
-    return () => {
-      clearTimeout(handler);
-    };
+    const handler = setTimeout(() => setDebouncedSearch(q), 300);
+    return () => clearTimeout(handler);
   }, [q]);
 
-  // lấy vị trí hiện tại
   useEffect(() => {
     (async () => {
       try {
@@ -48,45 +42,43 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
+    <View style={styles.container}>
       {/* Hiện vị trí user */}
-      {address ? (
-        <Text style={{ marginTop: 8, fontStyle: "italic" }}>📍 Your location: {address}</Text>
-      ) : (
-        <Text style={{ marginTop: 8, fontStyle: "italic" }}>📍 Getting your location...</Text>
-      )}
-      <Searchbar placeholder="Search restaurants" value={q} onChangeText={setQ} />
-      <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
+      <Text style={styles.locationText}>📍 {address ? `Your location: ${address}` : "Getting your location..."}</Text>
+
+      <Searchbar
+        placeholder="Search restaurants"
+        value={q}
+        onChangeText={setQ}
+        style={styles.searchbar}
+        inputStyle={{ color: "#333" }}
+        iconColor="#FF5722"
+      />
+
+      <View style={styles.chipRow}>
         {CATEGORIES.map((c) => (
-          <Chip key={c} selected={cat === c} onPress={() => setCat(c)}>
+          <Chip
+            key={c}
+            selected={cat === c}
+            onPress={() => setCat(c)}
+            style={[styles.chip, cat === c && styles.chipSelected]}
+            textStyle={cat === c ? styles.chipTextSelected : styles.chipText}
+          >
             {c}
           </Chip>
         ))}
       </View>
 
-      <Title style={{ marginTop: 12, marginBottom: 4 }}>Nearby Restaurants</Title>
+      <Title style={styles.sectionTitle}>Nearby Restaurants</Title>
 
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator color="#FF5722" />
       ) : (
         <FlatList
           data={data ?? []}
           keyExtractor={(item: Restaurant) => String(item.id)}
           renderItem={({ item }) => (
-            <Link href={ROUTES.RESTAURANT.DETAILS(item.id)} asChild>
-              <Card style={{ marginVertical: 8 }}>
-                <Card.Cover source={{ uri: item.image || "https://picsum.photos/700" }} />
-                <Card.Title title={item.name} subtitle={item.category} />
-                <Card.Content>
-                  <Text>
-                    <FontAwesome name="map-marker" size={16} color="black" /> {item.address}{" "}
-                    {item.distance !== undefined && (
-                      <Text style={{ color: "gray" }}> | {item.distance.toFixed(2)} km</Text>
-                    )}
-                  </Text>
-                </Card.Content>
-              </Card>
-            </Link>
+            <RestaurantCard restaurant={item} onPress={() => router.push(ROUTES.RESTAURANT.DETAILS(item.id))} />
           )}
           ListEmptyComponent={<Text>No restaurant found</Text>}
         />
@@ -94,3 +86,21 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  locationText: { marginTop: 8, fontStyle: "italic", color: "#555" },
+  searchbar: {
+    marginVertical: 12,
+    borderRadius: 8,
+    borderColor: "#FF5722",
+    borderWidth: 1,
+    backgroundColor: "#fff",
+  },
+  chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  chip: { borderColor: "#FF5722", borderWidth: 1, backgroundColor: "#fff" },
+  chipSelected: { backgroundColor: "#FF5722" },
+  chipText: { color: "#FF5722" },
+  chipTextSelected: { color: "#fff" },
+  sectionTitle: { marginTop: 16, marginBottom: 8, color: "#FF5722", fontWeight: "bold" },
+});

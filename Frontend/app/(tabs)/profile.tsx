@@ -47,7 +47,14 @@ export default function ProfileScreen() {
           ))}
         </List.Section>
 
-        <Button mode="outlined" onPress={logout} icon="logout" style={{ margin: 20 }} compact>
+        <Button
+          mode="outlined"
+          onPress={logout}
+          icon="logout"
+          style={{ margin: 20, borderColor: "#FF5722" }}
+          textColor="#FF5722"
+          compact
+        >
           Logout
         </Button>
       </ScrollView>

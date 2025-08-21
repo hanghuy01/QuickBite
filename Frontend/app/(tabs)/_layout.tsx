@@ -7,12 +7,37 @@ import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 export default function TabsLayout() {
   useProtectedRoute({ redirectTo: ROUTES.AUTH.LOGIN });
 
+  const commonScreenOptions = {
+    headerShown: true,
+    tabBarActiveTintColor: "#FF5722",
+    tabBarInactiveTintColor: "#777",
+    tabBarStyle: {
+      backgroundColor: "#fff",
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      height: 60,
+      paddingBottom: 6,
+      elevation: 4,
+      shadowColor: "#000",
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+    },
+    headerStyle: {
+      backgroundColor: "#fff",
+    },
+    headerTintColor: "#FF5722",
+    headerTitleStyle: {
+      fontWeight: "bold" as const,
+    },
+  };
+
   return (
-    <Tabs screenOptions={{ headerShown: true }}>
+    <Tabs screenOptions={commonScreenOptions}>
       <Tabs.Screen
         name="index"
         options={{
-          title: "QuickBite",
+          title: "🍔 QuickBite",
+          tabBarLabel: "QuickBite",
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" color={color} size={size} />,
         }}
       />
@@ -30,7 +55,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="clipboard-list" color={color} size={size} />,
         }}
       />
-
       <Tabs.Screen
         name="profile"
         options={{
