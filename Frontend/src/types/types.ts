@@ -4,13 +4,24 @@ export type Restaurant = {
   name: string;
   address: string;
   category: string;
+  description?: string;
   image?: string;
   distance?: number; // Optional for distance calculation
-  menuItems: MenuItem[];
+  lat?: number;
+  lon?: number;
+  location?: { latitude?: number; longitude?: number };
+  menuItems?: MenuItem[];
 };
 
 // Type MenuItem
-export type MenuItem = { id: number; name: string; price: number; image?: string; restaurantId: number };
+export type MenuItem = {
+  id: number;
+  name: string;
+  price: number;
+  description?: string;
+  image?: string;
+  restaurantId?: number;
+};
 
 // Type Order
 export type CreateOrderDto = {

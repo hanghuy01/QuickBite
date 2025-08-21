@@ -9,7 +9,8 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/(admin)",
     ORDER_TRACKING: "/(admin)/order-tracking",
-    RESTAURANTS: "/(admin)/restaurants",
+    RESTAURANTS: "/(admin)/AdminRestaurants",
+    RESTAURANT_MENU: (id: number) => `/(admin)/restaurant-menu/${id}` as const,
   },
   ORDER: {
     TRACK: (id: string) => `/orders/track/${id}` as const,
@@ -29,10 +30,12 @@ export type RouteString =
   | typeof ROUTES.AUTH.LOGIN
   | typeof ROUTES.TABS.ROOT
   | typeof ROUTES.ADMIN.ROOT
+  | typeof ROUTES.ADMIN.RESTAURANTS
 
   // với các route động, dùng kiểu hàm
   | ReturnType<typeof ROUTES.ORDER.TRACK>
-  | ReturnType<typeof ROUTES.RESTAURANT.DETAILS>;
+  | ReturnType<typeof ROUTES.RESTAURANT.DETAILS>
+  | ReturnType<typeof ROUTES.ADMIN.RESTAURANT_MENU>;
 
 export const ORDER_STEPS: Step[] = [
   { key: "confirmed", label: "Confirmed" },

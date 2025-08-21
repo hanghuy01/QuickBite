@@ -30,6 +30,17 @@ export default function AdminDashboard() {
           />
         </Card.Content>
       </Card>
+
+      {/* Restaurants Management */}
+      <Card style={styles.card} onPress={() => router.push(ROUTES.ADMIN.RESTAURANTS)}>
+        <Card.Content>
+          <List.Item
+            title="Restaurants"
+            description="🏠 Quản lý nhà hàng"
+            left={(props) => <List.Icon {...props} icon="store" />}
+          />
+        </Card.Content>
+      </Card>
     </SafeAreaView>
   );
 }
