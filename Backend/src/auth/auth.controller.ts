@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -51,6 +56,24 @@ export class AuthController {
   }
 
   @Get('profile')
+  @ApiBearerAuth('access-token') // 👈 cần token
+  @ApiOperation({ summary: 'Get user profile from JWT token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user profile',
+    schema: {
+      example: {
+        id: '68877a2b82aae013b94fee3e',
+        email: 'test@gmail.com',
+        name: 'Huy',
+        role: 'USER',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
   getProfile(@Request() req: JwtRequest) {
     const userId = req.user.userId; // Lấy từ JWT payload
     return this.authService.getProfile(userId);

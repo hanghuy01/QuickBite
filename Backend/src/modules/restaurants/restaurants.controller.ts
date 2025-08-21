@@ -10,39 +10,32 @@ import {
   HttpCode,
   Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RestaurantsService } from './restaurants.service';
-import { CreateRestaurantDto } from './dto/create-restaurant.dto';
+import {
+  CreateRestaurantDto,
+  RestaurantResponseDto,
+} from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
 import { Roles } from '@/auth/passport/roles.decorator';
 
+@ApiTags('restaurants')
 @Controller('restaurants')
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Post()
   @Roles(['ADMIN'])
-  @ApiOperation({ summary: 'Create a new restaurant' })
-  @ApiBody({
-    type: CreateRestaurantDto,
-    description: 'Restaurant create',
-    required: true,
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Restaurant created',
-    schema: {
-      example: {
-        id: 'c9f5d8b2-1a2b-4c3d-9e0f-123456789abc',
-        name: 'Pizza Palace',
-        description: 'Best pizza in town',
-        address: '180/77 Nguyen Huu Canh',
-        imageUrl: 'https://example.com/pizza.jpg',
-        menu: [],
-      },
-    },
-  })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new restaurant (Admin only)' })
+  @ApiResponse({ status: HttpStatus.CREATED, type: RestaurantResponseDto })
   create(@Body() dto: CreateRestaurantDto) {
     return this.restaurantsService.create(dto);
   }
@@ -57,13 +50,14 @@ export class RestaurantsController {
         {
           id: 'c9f5d8b2-1a2b-4c3d-9e0f-123456789abc',
           name: 'Pizza Palace',
+          category: 'Pizza',
           description: 'Best pizza in town',
           location: {
-            lat: 10.7769,
-            lon: 106.6959,
+            latitude: 10.7769,
+            longitude: 106.6959,
           },
           address: '180/77 Nguyen Huu Canh',
-          imageUrl: 'https://example.com/pizza.jpg',
+          image: 'https://example.com/pizza.jpg',
           menu: [
             {
               id: 'a1b2c3d4-1111-2222-3333-444455556666',
@@ -89,10 +83,15 @@ export class RestaurantsController {
     schema: {
       example: {
         id: 'c9f5d8b2-1a2b-4c3d-9e0f-123456789abc',
+        category: 'Pizza',
         name: 'Pizza Palace',
+        location: {
+          latitude: 10.7769,
+          longitude: 106.6959,
+        },
         description: 'Best pizza in town',
         address: '180/77 Nguyen Huu Canh',
-        imageUrl: 'https://example.com/pizza.jpg',
+        image: 'https://example.com/pizza.jpg',
         menu: [
           {
             id: 'a1b2c3d4-1111-2222-3333-444455556666',
@@ -111,7 +110,8 @@ export class RestaurantsController {
 
   @Patch(':id')
   @Roles(['ADMIN'])
-  @ApiOperation({ summary: 'Update a restaurant' })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a restaurant (Admin only)' })
   @ApiBody({ type: UpdateRestaurantDto })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -122,7 +122,7 @@ export class RestaurantsController {
         name: 'Pizza Palace (Updated)',
         description: 'New description',
         address: '180/77 Nguyen Huu Canh',
-        imageUrl: 'https://example.com/pizza-new.jpg',
+        image: 'https://example.com/pizza-new.jpg',
         menu: [],
       },
     },
@@ -133,7 +133,8 @@ export class RestaurantsController {
 
   @Delete(':id')
   @Roles(['ADMIN'])
-  @ApiOperation({ summary: 'Delete a restaurant' })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a restaurant (Admin only)' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
     description: 'Restaurant deleted (no content)',
