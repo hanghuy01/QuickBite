@@ -10,17 +10,19 @@ import {
   HttpCode,
   Query,
 } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
+import { Roles } from '@/auth/passport/roles.decorator';
 
 @Controller('restaurants')
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Post()
+  @Roles(['ADMIN'])
   @ApiOperation({ summary: 'Create a new restaurant' })
   @ApiBody({
     type: CreateRestaurantDto,
@@ -108,6 +110,7 @@ export class RestaurantsController {
   }
 
   @Patch(':id')
+  @Roles(['ADMIN'])
   @ApiOperation({ summary: 'Update a restaurant' })
   @ApiBody({ type: UpdateRestaurantDto })
   @ApiResponse({
@@ -129,6 +132,7 @@ export class RestaurantsController {
   }
 
   @Delete(':id')
+  @Roles(['ADMIN'])
   @ApiOperation({ summary: 'Delete a restaurant' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

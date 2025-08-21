@@ -3,8 +3,12 @@ import { Request } from 'express';
 export interface JwtPayload {
   userId: number;
   email: string;
-  role?: string; // Optional, if your JWT payload
+  role: string; // Optional, if your JWT payload
   // Thêm các field khác nếu payload JWT của bạn có
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
 }
 
 export interface JwtRequest extends Request {

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Roles } from '@/auth/passport/roles.decorator';
 
 @Controller('orders')
 export class OrdersController {
@@ -28,6 +29,7 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
+  @Roles(['ADMIN'])
   updateOrderStatus(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
     return this.ordersService.updateStatus(id, dto.status);
   }
