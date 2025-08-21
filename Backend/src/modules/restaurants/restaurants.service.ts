@@ -33,7 +33,13 @@ export class RestaurantsService {
   }
 
   create(dto: CreateRestaurantDto) {
-    const restaurant = this.restaurantRepo.create(dto);
+    const restaurant = this.restaurantRepo.create({
+      ...dto,
+      location: {
+        latitude: dto.lat,
+        longitude: dto.lon,
+      },
+    });
     return this.restaurantRepo.save(restaurant);
   }
 

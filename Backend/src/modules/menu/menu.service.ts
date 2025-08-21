@@ -25,6 +25,7 @@ export class MenuItemsService {
       name: dto.name,
       price: dto.price,
       description: dto.description,
+      image: dto.image,
       restaurant,
     });
 

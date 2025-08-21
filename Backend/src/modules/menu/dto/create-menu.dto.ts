@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateMenuItemDto {
@@ -6,8 +7,13 @@ export class CreateMenuItemDto {
   name: string;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   price: number;
+
+  @IsNotEmpty()
+  @IsString()
+  image?: string;
 
   @IsOptional()
   @IsString()
