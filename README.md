@@ -1,6 +1,7 @@
 # 🍔 QuickBite – Food Delivery App
 
 Mini GrabFood/UberEats: người dùng có thể duyệt nhà hàng, chọn món, đặt hàng và theo dõi đơn theo thời gian thực.
+Built with **NestJS + PostgreSQL** (backend) and **React Native (Expo)** (frontend)
 
 ## 📦 Tech Stack
 
@@ -44,3 +45,27 @@ Mini GrabFood/UberEats: người dùng có thể duyệt nhà hàng, chọn món
 git clone https://github.com/hangduchuy/quickbite.git
 cd quickbite
 ```
+
+### Backend
+
+```bash
+cd Backend
+yarn install
+yarn start:dev
+```
+
+### Frontend
+
+```bash
+cd Frontend
+yarn install
+yarn start
+```
+
+### Database
+
+docker-compose up -d
+
+## 📖 API Docs
+
+http://localhost:3000/docs

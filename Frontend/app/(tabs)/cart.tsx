@@ -24,6 +24,7 @@ export default function CartScreen() {
   });
 
   const checkout = async () => {
+    if (isPending) return;
     if (!state.restaurantId || state.items.length === 0 || !user || !state.total) return;
 
     await mutateAsync({
