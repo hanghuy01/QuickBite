@@ -28,6 +28,7 @@ const CartContext = createContext<Ctx | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<CartState>({ items: [], restaurantId: null, total: 0 });
 
+  // tính tổng giá giỏ hàng
   const recalc = (items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0);
 
   const addItem = (item: CartItem) => {
@@ -36,8 +37,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (prev.restaurantId && prev.restaurantId !== item.restaurantId) {
         return { items: [item], restaurantId: item.restaurantId, total: item.price * item.quantity };
       }
-      const idx = prev.items.findIndex((i) => i.menuItemId === item.menuItemId);
-      const nextItems = [...prev.items];
+      const idx = prev.items.findIndex((i) => i.menuItemId === item.menuItemId); // tìm món ăn có trong giỏ hàng
+      const nextItems = [...prev.items]; // cart items cũ
       if (idx >= 0) {
         nextItems[idx] = { ...nextItems[idx], quantity: nextItems[idx].quantity + item.quantity };
       } else {
@@ -49,8 +50,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const decreaseItem = (menuItemId: number) => {
     setState((prev) => {
+      // tìm món ăn có trong giỏ hàng
       const idx = prev.items.findIndex((i) => i.menuItemId === menuItemId);
+
+      // Nếu không tìm thấy món ăn, trả về trạng thái cũ
       if (idx < 0) return prev;
+
+      // Giảm số lượng món ăn trong giỏ hàng
       const nextItems = [...prev.items];
       if (nextItems[idx].quantity > 1) {
         nextItems[idx] = { ...nextItems[idx], quantity: nextItems[idx].quantity - 1 };
@@ -63,6 +69,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const removeItem = (menuItemId: number) => {
     setState((prev) => {
+      // Tìm món ăn không có menuItemId
       const nextItems = prev.items.filter((i) => i.menuItemId !== menuItemId);
       return { items: nextItems, restaurantId: nextItems.length ? prev.restaurantId : null, total: recalc(nextItems) };
     });

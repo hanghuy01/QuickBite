@@ -33,7 +33,7 @@ export class RestaurantsController {
 
   @Post()
   @Roles(['ADMIN'])
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Create a new restaurant (Admin only)' })
   @ApiResponse({ status: HttpStatus.CREATED, type: RestaurantResponseDto })
   create(@Body() dto: CreateRestaurantDto) {
@@ -75,6 +75,15 @@ export class RestaurantsController {
     return this.restaurantsService.findAll(query);
   }
 
+  @Get(':id/distance')
+  getDistance(
+    @Param('id') id: number,
+    @Query('lat') lat: number,
+    @Query('lon') lon: number
+  ) {
+    return this.restaurantsService.getRestaurantDistance(id, lat, lon);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get restaurant by id' })
   @ApiResponse({
@@ -110,7 +119,7 @@ export class RestaurantsController {
 
   @Patch(':id')
   @Roles(['ADMIN'])
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a restaurant (Admin only)' })
   @ApiBody({ type: UpdateRestaurantDto })
   @ApiResponse({
@@ -133,7 +142,7 @@ export class RestaurantsController {
 
   @Delete(':id')
   @Roles(['ADMIN'])
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Delete a restaurant (Admin only)' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

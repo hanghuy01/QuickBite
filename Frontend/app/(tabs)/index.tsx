@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const [debouncedSearch, setDebouncedSearch] = useState(q);
   const [cat, setCat] = useState("All");
 
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lon: number }>();
   const [address, setAddress] = useState<string>("");
 
   const { data, isLoading } = useQuery({
@@ -78,7 +78,11 @@ export default function HomeScreen() {
           data={data ?? []}
           keyExtractor={(item: Restaurant) => String(item.id)}
           renderItem={({ item }) => (
-            <RestaurantCard restaurant={item} onPress={() => router.push(ROUTES.RESTAURANT.DETAILS(item.id))} />
+            <RestaurantCard
+              restaurant={item}
+              coords={coords}
+              onPress={() => router.push(ROUTES.RESTAURANT.DETAILS(item.id))}
+            />
           )}
           ListEmptyComponent={<Text>No restaurant found</Text>}
         />

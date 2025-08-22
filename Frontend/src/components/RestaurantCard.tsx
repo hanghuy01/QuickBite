@@ -1,25 +1,40 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { Restaurant } from "@/types/types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDistance } from "@/api/restaurant";
 
 type Props = {
   restaurant: Restaurant;
   onPress?: () => void;
+  coords?: { lat: number; lon: number };
 };
 
-export default function RestaurantCard({ restaurant, onPress }: Props) {
+export default function RestaurantCard({ restaurant, onPress, coords }: Props) {
+  const { data: distanceData } = useQuery({
+    queryKey: ["restaurant-distance", restaurant.id, coords],
+    queryFn: () => fetchDistance(restaurant.id, coords!.lat, coords!.lon),
+    enabled: !!coords, // chỉ chạy khi có coords
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
     <Card style={styles.card} onPress={onPress}>
       <Card.Cover source={{ uri: restaurant.image || "https://picsum.photos/700" }} style={styles.cardImage} />
-      <Card.Title title={restaurant.name} subtitle={restaurant.category} />
+      <View style={styles.row}>
+        <Text style={styles.title}>{restaurant.name}</Text>
+        {distanceData && distanceData.distance && (
+          <Text style={styles.distance}>
+            {distanceData.distance.distanceKm} km | {distanceData.distance.durationMin} phút
+          </Text>
+        )}
+      </View>
       <Card.Content>
+        <Text>{restaurant.category}</Text>
         <Text style={styles.address}>
           <FontAwesome name="map-marker" size={16} color="#FF5722" /> {restaurant.address}{" "}
-          {restaurant.distance !== undefined && (
-            <Text style={styles.distance}> | {restaurant.distance.toFixed(2)} km</Text>
-          )}
         </Text>
       </Card.Content>
     </Card>
@@ -36,5 +51,19 @@ const styles = StyleSheet.create({
   },
   cardImage: { height: 140 },
   address: { marginTop: 4, color: "#333" },
-  distance: { color: "gray" },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  distance: {
+    fontSize: 14,
+    color: "#666",
+  },
 });

@@ -6,7 +6,7 @@ export type Restaurant = {
   category: string;
   description?: string;
   image?: string;
-  distance?: number; // Optional for distance calculation
+  distance?: { distanceKm: number; durationMin: number };
   lat?: number;
   lon?: number;
   location?: { latitude?: number; longitude?: number };

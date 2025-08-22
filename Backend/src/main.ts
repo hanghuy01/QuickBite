@@ -26,7 +26,14 @@ async function bootstrap() {
     .setTitle('Quickbite API')
     .setDescription('API documentation for Quickbite application')
     .setVersion('1.0')
-    .addBearerAuth() // Cho phép xác thực JWT trong Swagger UI
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT', // chỉ để hiển thị cho đẹp, không bắt buộc
+      },
+      'access-token'
+    ) // Cho phép xác thực JWT trong Swagger UI
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);

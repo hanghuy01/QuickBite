@@ -34,3 +34,13 @@ export const fetchMenu = async (restaurantId: string | number) => {
   const res = await api.get<MenuItem[]>(`${RESTAURANT_API_URL}/${restaurantId}/menu`);
   return res.data;
 };
+
+export const fetchDistance = async (restaurantId: string | number, lat: number, lon: number) => {
+  const res = await api.get<{ distance: { distanceKm: number; durationMin: number } }>(
+    `${RESTAURANT_API_URL}/${restaurantId}/distance`,
+    {
+      params: { lat, lon },
+    }
+  );
+  return res.data;
+};

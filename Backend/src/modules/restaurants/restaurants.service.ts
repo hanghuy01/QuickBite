@@ -6,6 +6,16 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
 
+interface OSRMRoute {
+  distance: number;
+  duration: number;
+}
+
+interface OSRMResponse {
+  code: string;
+  routes: OSRMRoute[];
+}
+
 @Injectable()
 export class RestaurantsService {
   constructor(
@@ -13,6 +23,7 @@ export class RestaurantsService {
     private restaurantRepo: Repository<Restaurant>
   ) {}
 
+  // Khoảng cách theo đường chim bay
   private getDistanceKm(
     latUser: number,
     lonUser: number,
@@ -32,6 +43,39 @@ export class RestaurantsService {
     return R * c;
   }
 
+  async getRouteInfo(
+    latUser: number,
+    lonUser: number,
+    latRestaurant: number,
+    lonRestaurant: number
+  ) {
+    try {
+      const url = `http://router.project-osrm.org/route/v1/driving/${lonRestaurant},${latRestaurant};${lonUser},${latUser}`;
+
+      const response = await fetch(url);
+      const data = (await response.json()) as OSRMResponse;
+
+      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+        console.warn('OSRM không tìm thấy đường đi hợp lệ', {
+          latUser,
+          lonUser,
+          latRestaurant,
+          lonRestaurant,
+        });
+        return { distanceKm: Infinity, durationMin: Infinity };
+      }
+
+      const route = data.routes[0];
+      return {
+        distanceKm: Math.round((route.distance / 1000) * 10) / 10,
+        durationMin: Math.ceil(route.duration / 60) + 22, //thêm 22 phút cho thời gian di chuyển
+      };
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin đường đi:', error);
+      return { distanceKm: Infinity, durationMin: Infinity };
+    }
+  }
+
   create(dto: CreateRestaurantDto) {
     const restaurant = this.restaurantRepo.create({
       ...dto,
@@ -44,7 +88,7 @@ export class RestaurantsService {
   }
 
   async findAll(query: FindAllRestaurantsDto) {
-    const { q, category, lat, lon } = query;
+    const { q, category } = query;
 
     const where: FindOptionsWhere<Restaurant> = {};
     if (q) {
@@ -53,25 +97,21 @@ export class RestaurantsService {
     if (category) {
       where.category = category;
     }
-    const restaurants = await this.restaurantRepo.find({
-      where,
-      relations: ['menuItems'],
-    });
+    return this.restaurantRepo.find({ where });
+  }
 
-    if (lat && lon) {
-      return restaurants
-        .map((r) => {
-          const distance = this.getDistanceKm(
-            lat,
-            lon,
-            r.location.latitude,
-            r.location.longitude
-          );
-          return { ...r, distance };
-        })
-        .sort((a, b) => a.distance - b.distance);
-    }
-    return restaurants;
+  async getRestaurantDistance(id: number, lat: number, lon: number) {
+    const restaurant = await this.restaurantRepo.findOne({ where: { id } });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+
+    const distance = await this.getRouteInfo(
+      lat,
+      lon,
+      restaurant.location.latitude,
+      restaurant.location.longitude
+    );
+
+    return { restaurantId: id, distance };
   }
 
   async findOne(id: number) {

@@ -19,6 +19,7 @@ export default function RestaurantDetail() {
     enabled: !!id,
   });
 
+  // Get quantity menu item
   const getQuantity = (menuItemId: number) => state.items.find((i) => i.menuItemId === menuItemId)?.quantity ?? 0;
 
   if (isLoading) {
