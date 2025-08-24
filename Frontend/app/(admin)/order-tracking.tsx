@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { fetchOrders, updateOrderStatusApi } from "@/api/orders";
 import OrderCard from "@/components/OrderCard";
 import { ORDER_STEPS, RouteString } from "@/constants";
+import { Order } from "@/types/types";
 
 export default function AdminOrderTracking() {
   const { from } = useLocalSearchParams<{ from?: RouteString }>();
@@ -28,10 +29,14 @@ export default function AdminOrderTracking() {
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) => updateOrderStatusApi(orderId, status),
 
     onSuccess: (_, { orderId, status }) => {
-      queryClient.setQueryData(["orders"], (old: any[] = []) =>
+      // Cập nhật lại dữ liệu trong cache
+      queryClient.setQueryData(["orders"], (old: Order[]) =>
         old?.map((o) => (o.id === orderId ? { ...o, status } : o))
       );
     },
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["orders"] });
+    // },
   });
 
   const handleUpdateStatus = (orderId: string, currentStatus: string) => {

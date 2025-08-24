@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import api from "@/lib/axios";
 import { CreateOrderDto, Order } from "@/types/types";
 
 const ORDER_API_URL = "/orders";

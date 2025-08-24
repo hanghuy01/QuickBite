@@ -34,3 +34,11 @@ export interface UserProfile {
   name?: string;
   email: string;
 }
+
+export interface RefreshTokenPayload {
+  sub: string; // userId
+  email: string;
+  role: string;
+  iat?: number;
+  exp?: number;
+}

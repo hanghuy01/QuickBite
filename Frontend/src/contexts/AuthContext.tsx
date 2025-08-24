@@ -1,6 +1,8 @@
 import { loginApi, registerApi } from "@/api/auth.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { setAccessToken } from "@/lib/axios";
 
 type User = { id: number; email: string; name: string; role: "ADMIN" | "USER" } | null;
 
@@ -8,7 +10,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   user: User;
   login: (payload: { email: string; password: string }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (payload: { email: string; password: string; name: string }) => Promise<void>;
   loading: boolean;
 }
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const isLoggedIn = !!user;
 
+  // Load user & refresh_token khi mở app
   useEffect(() => {
     const loadAuth = async () => {
       try {
@@ -28,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(JSON.parse(user));
         }
       } catch (err) {
-        console.warn("Auth load error", err);
+        console.error("Load auth error", err);
       } finally {
         setLoading(false);
       }
@@ -39,16 +42,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async ({ email, password }: { email: string; password: string }) => {
     try {
       const res = await loginApi({ email, password });
-      if (!res || !res.access_token) {
+      if (!res || !res.access_token || !res.refresh_token) {
         throw new Error("Login failed");
       }
 
-      const { access_token, user } = res;
-      // Lưu token và user
-      await AsyncStorage.setItem("token", access_token);
-      await AsyncStorage.setItem("user", JSON.stringify(user));
+      const { access_token, user, refresh_token } = res;
 
+      // Lưu user
+      await AsyncStorage.setItem("user", JSON.stringify(user));
       setUser(user);
+
+      // Lưu refresh_token bảo mật
+      await SecureStore.setItemAsync("refresh_token", refresh_token);
+
+      // Access token chỉ lưu trong memory
+      setAccessToken(access_token);
     } catch (err) {
       console.error("Login error", err);
       throw err;
@@ -58,18 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async ({ email, password, name }: { email: string; password: string; name: string }) => {
     try {
       const res = await registerApi({ email, password, name });
-
-      //{"message": "User registered successfully"} nào trả về access_token thì bật lên
       if (!res) {
         throw new Error("Registration failed");
       }
-
-      // const { access_token, user } = res;
-      // // Lưu token và user
-      // await AsyncStorage.setItem("token", access_token);
-      // await AsyncStorage.setItem("user", JSON.stringify(user));
-
-      // setUser(user);
+      // tuỳ API có trả token + user thì xử lý thêm
     } catch (err) {
       console.error("Registration error", err);
       throw err;
@@ -78,7 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     setUser(null);
-    await AsyncStorage.multiRemove(["token", "user"]);
+    setAccessToken(undefined);
+    await AsyncStorage.removeItem("user");
+    await SecureStore.deleteItemAsync("refresh_token");
   };
 
   return (

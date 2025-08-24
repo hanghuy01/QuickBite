@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import api from "@/lib/axios";
 import { LoginForm, RegisterForm } from "@/schemas/auth";
 
 const AUTH_API_URL = "/auth";

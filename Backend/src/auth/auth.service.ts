@@ -1,25 +1,44 @@
 import {
-  UnauthorizedException,
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { User } from './entities/user.entity';
-import { comparePasswordHelper, hashPasswordHelper } from '@/helpers/util';
+import Redis from 'ioredis';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserProfile } from './types';
+import { RegisterDto } from './dto/register.dto';
+import { ConfigService } from '@nestjs/config';
+import { comparePasswordHelper, hashPasswordHelper } from '@/helpers/util';
+import { RefreshTokenPayload, UserProfile } from './types';
+import { User } from './entities/user.entity';
+import { REDIS_CLIENT } from '@/redis/redis.provider';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private config: ConfigService,
+    @Inject(REDIS_CLIENT) private readonly redisClient: Redis
   ) {}
+
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (!user) return null;
+
+    const isValidPassword = await comparePasswordHelper(
+      password,
+      user.password
+    );
+    if (!isValidPassword) return null;
+
+    return user;
+  }
 
   async register(dto: RegisterDto) {
     const { email, password, name, role } = dto;
@@ -39,13 +58,22 @@ export class AuthService {
     return { message: 'User registered successfully' };
   }
 
-  async login(dto: LoginDto) {
-    const { email, password } = dto;
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user || !(await comparePasswordHelper(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.config.get<string>('JWT_SECRET'),
+      expiresIn: this.config.get<string>('JWT_REFRESH_TOKEN_EXPIRED'),
+    });
+
+    // 👉 Lưu refreshToken vào Redis (key = userId)
+    await this.redisClient.set(
+      `refresh:${user.id}`,
+      refreshToken,
+      'EX',
+      7 * 24 * 60 * 60 // 7 ngày
+    );
+
     return {
       user: {
         id: user.id,
@@ -53,7 +81,24 @@ export class AuthService {
         name: user.name,
         role: user.role,
       },
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  getNewAccessToken(refreshToken: string) {
+    const payload = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
+      secret: this.config.get<string>('JWT_SECRET'),
+    });
+    const { sub, email, role } = payload;
+    return {
+      access_token: this.jwtService.sign(
+        { sub, email, role },
+        {
+          secret: this.config.get<string>('JWT_SECRET'),
+          expiresIn: this.config.get<string>('JWT_ACCESS_TOKEN_EXPIRED'),
+        }
+      ),
     };
   }
 

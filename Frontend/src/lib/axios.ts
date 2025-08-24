@@ -1,26 +1,92 @@
+import { refreshTokenApi } from "@/api/refresh.api";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 // import { API_URL } from "@env";
 
-export const api = axios.create({
+let logoutFn: (() => void) | null = null;
+export const setLogoutFn = (fn: () => void) => {
+  logoutFn = fn;
+};
+
+const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL, // API gốc
-  timeout: 5000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  timeout: 10000,
 });
 
-// Interceptor request (thêm token nếu có)
-api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// ========== Token Handling ==========
+let accessToken: string | undefined;
+export const setAccessToken = (token?: string) => {
+  accessToken = token;
+};
+
+// ========== Refresh Token Queue ==========
+let refreshingPromise: Promise<string> | null = null;
+
+async function refreshAccessToken() {
+  if (!refreshingPromise) {
+    refreshingPromise = (async () => {
+      const refresh_token = await SecureStore.getItemAsync("refresh_token");
+      if (!refresh_token) throw new Error("No refresh token");
+
+      const res = await refreshTokenApi(refresh_token);
+      const { access_token: newAccessToken } = res;
+
+      setAccessToken(newAccessToken);
+      refreshingPromise = null;
+      return newAccessToken;
+    })();
   }
-  return config;
-});
+  return refreshingPromise;
+}
 
-// Interceptor response (bắt lỗi chung)
+// == ======== Interceptors ==========
+api.interceptors.request.use(
+  async (config) => {
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add response interceptor => nếu 401 thì tự refresh
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error(error.response?.data || error.message);
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Nếu token hết hạn và chưa retry => refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const newAccessToken = await refreshAccessToken();
+        // const refresh_token = await SecureStore.getItemAsync("refresh_token");
+        // if (!refresh_token) throw new Error("No refresh token");
+
+        // // Gọi API refresh
+        // const res = await refreshTokenApi(refresh_token);
+        // const { access_token: newAccessToken } = res;
+        // console.log("newAccessToken", newAccessToken);
+        // // Update lại accessToken trong memory
+        // setAccessToken(newAccessToken);
+
+        // Retry request cũ với token mới
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        console.error("Refresh token failed", err);
+        // Nếu refresh fail thì logout
+        logoutFn?.();
+      }
+    }
+
     return Promise.reject(error);
   }
 );
+
+export default api;

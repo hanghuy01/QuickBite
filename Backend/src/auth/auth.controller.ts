@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -7,9 +14,10 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 import { JwtRequest } from './types';
 import { Public } from '@/decorator/customize';
+import { LocalAuthGuard } from './passport/local-auth.guard';
+import { User } from './entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -35,6 +43,7 @@ export class AuthController {
 
   @Post('login')
   @Public()
+  @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login user and return JWT token' })
   @ApiResponse({
     status: 200,
@@ -51,8 +60,14 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Request() req: { user: User }) {
+    return this.authService.login(req.user);
+  }
+
+  @Post('refresh-token')
+  @Public()
+  refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.getNewAccessToken(refreshToken);
   }
 
   @Get('profile')

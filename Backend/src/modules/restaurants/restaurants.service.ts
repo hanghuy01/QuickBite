@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { Restaurant } from './entities/restaurant.entity';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
+import Redis from 'ioredis';
 
 interface OSRMRoute {
   distance: number;
@@ -16,11 +17,20 @@ interface OSRMResponse {
   routes: OSRMRoute[];
 }
 
+type DistanceResult = {
+  restaurantId: number;
+  distance: {
+    distanceKm: number;
+    durationMin: number;
+  };
+};
+
 @Injectable()
 export class RestaurantsService {
   constructor(
     @InjectRepository(Restaurant)
-    private restaurantRepo: Repository<Restaurant>
+    private restaurantRepo: Repository<Restaurant>,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis
   ) {}
 
   // Khoảng cách theo đường chim bay
@@ -104,6 +114,16 @@ export class RestaurantsService {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
 
+    // Tạo cache key duy nhất cho (user → restaurant)
+    const cacheKey = `distance:${id}:${lat}:${lon}`;
+
+    // Kiểm tra cache
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached) as DistanceResult;
+    }
+
+    //  Nếu chưa có cache → gọi OSRM
     const distance = await this.getRouteInfo(
       lat,
       lon,
@@ -111,7 +131,12 @@ export class RestaurantsService {
       restaurant.location.longitude
     );
 
-    return { restaurantId: id, distance };
+    const result = { restaurantId: id, distance };
+
+    // Lưu vào Redis TTL = 5 phút
+    await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+
+    return result;
   }
 
   async findOne(id: number) {

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   quickbite:
     image: postgres:15.0
@@ -9,6 +9,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123123
       POSTGRES_DB: quickbite
+    networks:
+      - nestjs-network
+
+  redis:
+    image: redis:7.2
+    container_name: quickbite-redis
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"] # enable persistence
     networks:
       - nestjs-network
 
