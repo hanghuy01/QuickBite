@@ -36,7 +36,7 @@ Dùng @tanstack/react-query để quản lý API request & caching
 
 Dùng zod kết hợp react-hook-form để validation chặt chẽ
 
-Dùng AsyncStorage để lưu user
+Dùng AsyncStorage để lưu user, để hỗ trợ offline giỏ hàng
 
 Dùng SecureStore để lưu refresh_token
 
