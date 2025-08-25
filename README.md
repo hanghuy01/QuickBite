@@ -22,12 +22,13 @@ Built with **NestJS + PostgreSQL** (backend) and **React Native (Expo)** (fronte
 - class-validator + class-transformer (DTO validation)
 - @nestjs/config (.env management)
 - @nestjs/swagger (API docs)
+- redis (cache, lưu refresh_token)
 
 ---
 
 ## ⚡ Features
 
-- **Auth**: Đăng ký, đăng nhập bằng JWT
+- **Auth**: Đăng ký, đăng nhập bằng JWT, phân quyền theo role
 - **Restaurants**: CRUD + menu items, hiển thị theo khoảng cách đến user
 - **Cart**: Thêm món, tính tổng
 - **Orders**: Tạo đơn, xem lịch sử
@@ -47,6 +48,8 @@ cd quickbite
 ```
 
 ### Backend
+
+node 22.18.0
 
 ```bash
 cd Backend

@@ -114,8 +114,10 @@ export class RestaurantsService {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
 
+    const roundedLat = Number(lat).toFixed(3);
+    const roundedLon = Number(lon).toFixed(3);
     // Tạo cache key duy nhất cho (user → restaurant)
-    const cacheKey = `distance:${id}:${lat}:${lon}`;
+    const cacheKey = `distance:${id}:${roundedLat}:${roundedLon}`;
 
     // Kiểm tra cache
     const cached = await this.redis.get(cacheKey);

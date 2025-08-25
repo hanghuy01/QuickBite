@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import Redis from 'ioredis';
@@ -86,11 +87,18 @@ export class AuthService {
     };
   }
 
-  getNewAccessToken(refreshToken: string) {
+  async getNewAccessToken(refreshToken: string) {
     const payload = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
       secret: this.config.get<string>('JWT_SECRET'),
     });
     const { sub, email, role } = payload;
+
+    // Lấy refreshToken trong Redis ra
+    const storedToken = await this.redisClient.get(`refresh:${sub}`);
+    if (!storedToken || storedToken !== refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
     return {
       access_token: this.jwtService.sign(
         { sub, email, role },

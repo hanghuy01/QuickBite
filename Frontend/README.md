@@ -1,50 +1,47 @@
-# Welcome to your Expo app 👋
+📁 Quickbite Client (Frontend - React Native)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+📌 Project Overview
 
-## Get started
+Quickbite là giao diện ứng dụng đặt đồ ăn nhanh: tìm kiếm nhà hàng(search, category, theo khoảng cách gần nhất), chọn món, thêm vào giỏ, đặt hàng và theo dõi trạng thái giao. Viết bằng React Native (Expo) với quản lý state, xác thực JWT(accessToken, refreshToken), và kết nối backend NestJS.
 
-1. Install dependencies
+🚀 Setup & Run Instructions
+Quickbite
 
-   ```bash
-   npm install
-   ```
+1. Clone repo
 
-2. Start the app
+git clone https://github.com/hangduchuy/Quickbite.git
+cd Quickbite
+cd Frontend
 
-   ```bash
-   npx expo start
-   ```
+2. Cài đặt dependencies
 
-In the output, you'll find options to open the app in a
+node 22.18.0
+yarn install
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+3. Cấu hình .env
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+EXPO_PUBLIC_API_URL=http://10.0.2.2:3000
 
-## Get a fresh project
+4. Khởi chạy dev
 
-When you're ready, run:
+yarn start
 
-```bash
-npm run reset-project
-```
+⚖️ Decisions & Trade-offs
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Dùng expo-router thay vì React Navigation để đơn giản hoá routing
 
-## Learn more
+Dùng Contex cho Cart/User state (nhẹ và dễ dùng)
 
-To learn more about developing your project with Expo, look at the following resources:
+Dùng @tanstack/react-query để quản lý API request & caching
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Dùng zod kết hợp react-hook-form để validation chặt chẽ
 
-## Join the community
+Dùng AsyncStorage để lưu user
 
-Join our community of developers creating universal apps.
+Dùng SecureStore để lưu refresh_token
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Dùng expo-location để lấy vị trí người dùng (để biết được khoảng cách đến nhà hàng mà filter)
+
+📘 Swagger / API Docs
+
+Truy cập: http://localhost:3000/docs

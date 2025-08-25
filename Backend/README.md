@@ -15,7 +15,8 @@ cd Backend
 
 2. Cài đặt dependencies
 
-npm install
+node 22.18.0
+yarn install
 
 3. Cấu hình .env
 
@@ -25,9 +26,16 @@ DATABASE_TYPE=postgres
 DATABASE_URL=postgresql://postgres:123123@localhost:5434/quickbite
 
 JWT_SECRET=hangduchuy
-JWT_ACCESS_TOKEN_EXPIRED=1d
+JWT_ACCESS_TOKEN_EXPIRED=15m
+JWT_REFRESH_TOKEN_EXPIRED=7d
+
 PORT=3000
-FRONTEND_URL=http://localhost:5173
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+FRONTEND_URL=http://10.0.2.2:8081
 
 4. Khởi chạy dev
 
@@ -35,11 +43,15 @@ yarn start:dev
 
 ⚖️ Decisions & Trade-offs
 
-Dùng PostgreSQL và đang dùng docker để chạy postpgre.
+Dùng PostgreSQL + TypeORM ,đang dùng docker để chạy postpgre.
+
+Dùng redis để cache và lưu refresh_token.
+
+Dùng API OSRM để tính khoảng cách, thời gian đi xe máy trên map.
 
 Dùng class-validator để đảm bảo dữ liệu đầu vào đúng chuẩn.
 
-Dùng JWT để hỗ trợ xác thực đơn giản, dễ mở rộng.
+Dùng JWT để hỗ trợ xác thực đơn giản có accessToken, refreshToken, phần quyền role, dễ mở rộng.
 
 📘 Swagger / API Docs
 
