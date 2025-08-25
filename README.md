@@ -73,60 +73,85 @@ docker-compose up -d
 
 http://localhost:3000/docs
 
-### screenshot flow
+### Screenshot flow
 
-[Login]
-Đăng nhập có User và Admin
+## 🚀 User Flow
+
+[Login]  
+Đăng nhập có User và Admin  
 ![alt text](assets/login.png)
+
 ↓
+
 [Home Screen User]
 
 - Vào xin cấp quyền lấy vị trí người dùng để tính (khoảng cách, thời gian) di chuyển trên Map đến nhà hàng
 - Search
 - Danh sách các nhà hàng gần đó
-- Categories (Pizza, Sushi, Drinks)
-  ![alt text](assets/locatin-user.png)
+- Categories (Pizza, Sushi, Drinks)  
+  ![alt text](assets/locatin-user.png)  
   ![alt text](assets/home.png)
-  ↓
-  [Restaurant Details]
-- Khi nhấn vào view cart chuyển sang Cart
-  ![alt text](assets/restaurant-detail.png)
-  ↓
-  [Cart Screen]
-- Danh sách các mục đã chọn
-- Checkout button
-  ![alt text](assets/cart.png)
-  ↓
-  [Order Tracking]
-  ![alt text](assets/order-tracking.png)
-  ↓
-  [Order History]
-  ![alt text](assets/history.png)
-  ↓
-  [Profile Screen]
-  ![alt text](assets/profile.png)
 
-///////////////// Admin //////////////////////
-[DashBoard Screen]
-![alt text](assets/dashboard.png)
 ↓
+
+[Restaurant Details]
+
+- Khi nhấn vào view cart chuyển sang Cart  
+  ![alt text](assets/restaurant-detail.png)
+
+↓
+
+[Cart Screen]
+
+- Danh sách các mục đã chọn
+- Checkout button  
+  ![alt text](assets/cart.png)
+
+↓
+
+[Order Tracking]  
+![alt text](assets/order-tracking.png)
+
+↓
+
+[Order History]  
+![alt text](assets/history.png)
+
+↓
+
+[Profile Screen]  
+![alt text](assets/profile.png)
+
+---
+
+## 🛠️ Admin Flow
+
+[DashBoard Screen]  
+![alt text](assets/dashboard.png)
+
+↓
+
 [Quản lý đơn hàng]
 
 - search Order ID
 - update status
-- refresh data
+- refresh data  
   ![alt text](assets/manager-order.png)
-  ↓
-  [Quản lý nhà hàng]
-  CRUD nhà hàng
+
+↓
+
+[Quản lý nhà hàng]  
+CRUD nhà hàng
 
 - Thêm, sửa dùng chung modal
 - Xoá thì thêm alert để xác nhận lần nữa
-- Khi nhấn vào nhà hàng sẽ di chuyển đến menu nhà hàng đó
-  ![alt text](assets/manager-retaurant.png)
+- Khi nhấn vào nhà hàng sẽ di chuyển đến menu nhà hàng đó  
+  ![alt text](assets/manager-retaurant.png)  
   ![alt text](assets/modal-restaurant.png)
-  ↓
-  [Quản lý Menu của nhà hàng]
-  CRUD Tương tự như nhà hàng
-  ![alt text](assets/manager-menu.png)
-  ![alt text](assets/modal-menu.png)
+
+↓
+
+[Quản lý Menu của nhà hàng]  
+CRUD Tương tự như nhà hàng  
+![alt text](assets/manager-menu.png)  
+![alt text](assets/modal-menu.png)
