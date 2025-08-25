@@ -40,6 +40,7 @@ export class RestaurantsService {
     latRestaurant: number,
     lonRestaurant: number
   ) {
+    // Shouldn't use magic name like R, a, c
     const R = 6371; // km
     const toRad = (deg: number) => (deg * Math.PI) / 180;
     const dLat = toRad(latRestaurant - latUser);
@@ -76,6 +77,7 @@ export class RestaurantsService {
       }
 
       const route = data.routes[0];
+      // Notes: Dont use magic numbers, better when they have name
       return {
         distanceKm: Math.round((route.distance / 1000) * 10) / 10,
         durationMin: Math.ceil(route.duration / 60) + 22, //thêm 22 phút cho thời gian di chuyển
@@ -101,7 +103,9 @@ export class RestaurantsService {
     const { q, category } = query;
 
     const where: FindOptionsWhere<Restaurant> = {};
+    
     if (q) {
+      // Warning when using this way
       where.name = ILike(`%${q}%`);
     }
     if (category) {
@@ -110,6 +114,10 @@ export class RestaurantsService {
     return this.restaurantRepo.find({ where });
   }
 
+  /**
+   * No validation for payload https://github.com/typestack/class-validator
+   * should not throw NotFoundException. it should be Bad Request
+   */
   async getRestaurantDistance(id: number, lat: number, lon: number) {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
@@ -144,18 +152,30 @@ export class RestaurantsService {
   async findOne(id: number) {
     const restaurant = await this.restaurantRepo.findOne({
       where: { id },
-      relations: ['menuItems'],
+      // relations: ['menuItems'],
+      // use this way for type safety
+      relations: {
+        menuItems: true
+      },
     });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
     return restaurant;
   }
 
+  /**
+   * Notes: Update with save should be consider, prefer update raw for better performance if no return's required
+   */
   async update(id: number, dto: UpdateRestaurantDto) {
     const restaurant = await this.findOne(id);
     Object.assign(restaurant, dto);
     return this.restaurantRepo.save(restaurant);
   }
 
+  /**
+   * Notes: 
+   * Soft remove, for exist checking, we have exists function
+   * Should throw exception if not exist
+   */
   async remove(id: number) {
     const restaurant = await this.findOne(id);
     return this.restaurantRepo.remove(restaurant);

@@ -9,6 +9,12 @@ import {
 import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
 import { User } from '@/modules/users/entities/user.entity';
 
+/**
+ * Notes: 
+ * Prefer not use any type unless have to 
+ * Status should be enum
+ * Be careful when using eager  
+ */
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')

@@ -5,6 +5,9 @@ import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
 import { User } from '@/modules/users/entities/user.entity';
 import { Order } from '@/modules/orders/entities/order.entity';
 
+/**
+ * Not expose sensitive data
+ */
 const AppDataSource = new DataSource({
   type: 'postgres',
   host: 'localhost',

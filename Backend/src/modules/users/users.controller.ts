@@ -12,10 +12,20 @@ import { CreateUserDto, UserResponseDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+/**
+ * Notes: 
+ * Should validate params
+ * Swagger auth missing
+ * Can auto-detect ApiResponse by adding response type
+ */
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Notes: 
+   *  Not sure this one responses 201
+   */
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, type: UserResponseDto })

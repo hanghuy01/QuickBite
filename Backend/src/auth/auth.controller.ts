@@ -19,6 +19,12 @@ import { Public } from '@/decorator/customize';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { User } from './entities/user.entity';
 
+/**
+ *  NOTES: 
+ * No response type's defined 
+ * Everything should be in english
+ *  
+*/
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -64,6 +70,10 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
+  /**
+   * NOTES:
+   * this route shouldn't be public, should be validated by expired token & refresh token
+  */
   @Post('refresh-token')
   @Public()
   refresh(@Body('refresh_token') refreshToken: string) {
@@ -89,6 +99,10 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized - Invalid or missing token',
   })
+  /**
+   * NOTES:
+   * can custom a decorator for current user
+  */
   getProfile(@Request() req: JwtRequest) {
     const userId = req.user.userId; // Lấy từ JWT payload
     return this.authService.getProfile(userId);
