@@ -1,5 +1,8 @@
 import { Request } from 'express';
 
+/**
+ * Notes: Payload should be class to add validation 
+ */
 export interface JwtPayload {
   userId: number;
   email: string;

@@ -2,6 +2,9 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
 import { Order } from '@/modules/orders/entities/order.entity';
 
+
+// Consider address & location should be in one
+// Be warning when using cascade, it could occur unnecessary queries
 @Entity()
 export class Restaurant {
   @PrimaryGeneratedColumn()

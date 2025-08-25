@@ -16,6 +16,10 @@ import { RefreshTokenPayload, UserProfile } from './types';
 import { User } from './entities/user.entity';
 import { REDIS_CLIENT } from '@/redis/redis.provider';
 
+/**
+ * Every function should have response type
+ */
+
 @Injectable()
 export class AuthService {
   constructor(
