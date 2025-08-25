@@ -15,6 +15,9 @@ interface AuthContextType {
   loading: boolean;
 }
 
+const USER_KEY = "user";
+const REFRESH_TOKEN_KEY = "refresh_token";
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -26,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadAuth = async () => {
       try {
-        const user = await AsyncStorage.getItem("user");
+        const user = await AsyncStorage.getItem(USER_KEY);
         if (user) {
           setUser(JSON.parse(user));
         }
@@ -49,11 +52,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { access_token, user, refresh_token } = res;
 
       // Lưu user
-      await AsyncStorage.setItem("user", JSON.stringify(user));
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
       setUser(user);
 
       // Lưu refresh_token bảo mật
-      await SecureStore.setItemAsync("refresh_token", refresh_token);
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
 
       // Access token chỉ lưu trong memory
       setAccessToken(access_token);
@@ -79,8 +82,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setUser(null);
     setAccessToken(undefined);
-    await AsyncStorage.removeItem("user");
-    await SecureStore.deleteItemAsync("refresh_token");
+    await AsyncStorage.removeItem(USER_KEY);
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   };
 
   return (

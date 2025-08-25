@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, type ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type CartItem = {
   menuItemId: number;
@@ -23,10 +24,38 @@ type Ctx = {
   clearCart: () => void;
 };
 
+const CART_KEY = "quickbite_cart";
+
 const CartContext = createContext<Ctx | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<CartState>({ items: [], restaurantId: null, total: 0 });
+
+  // 🔄 Load cart từ AsyncStorage khi app mở
+  useEffect(() => {
+    (async () => {
+      try {
+        const saved = await AsyncStorage.getItem(CART_KEY);
+        if (saved) {
+          const parsed: CartState = JSON.parse(saved);
+          setState(parsed);
+        }
+      } catch (err) {
+        console.error("Failed to load cart", err);
+      }
+    })();
+  }, []);
+
+  // 💾 Persist cart mỗi khi state thay đổi
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem(CART_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.error("Failed to save cart", err);
+      }
+    })();
+  }, [state]);
 
   // tính tổng giá giỏ hàng
   const recalc = (items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0);
