@@ -15,7 +15,7 @@ type Props = {
 export default function RestaurantCard({ restaurant, onPress, coords }: Props) {
   const { data: distanceData } = useQuery({
     queryKey: ["restaurant-distance", restaurant.id, coords],
-    queryFn: () => fetchDistance(restaurant.id, coords!.lat, coords!.lon),
+    queryFn: () => fetchDistance(restaurant.id, coords!.lat, coords!.lon),  // TODO: !
     enabled: !!coords, // chỉ chạy khi có coords
     staleTime: 5 * 60 * 1000,
   });

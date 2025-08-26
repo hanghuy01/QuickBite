@@ -9,6 +9,11 @@ import { Restaurant } from "@/types/types";
 import { ROUTES } from "@/constants";
 import CreateOrEditRestaurantModal, { FormValuesRes } from "@/components/admin/CreateOrEditRestaurantModal";
 
+// TODO: Should split to other folder not place logic code in router
+// English comments and text
+// Should split components
+// Split hooks for reuse
+// Same for other place
 export default function AdminRestaurants() {
   const router = useRouter();
   const queryClient = useQueryClient();

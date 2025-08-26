@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadAuth = async () => {
       try {
+        // TODO: Should fetch new from API
         const user = await AsyncStorage.getItem(USER_KEY);
         if (user) {
           setUser(JSON.parse(user));
@@ -56,6 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(user);
 
       // Lưu refresh_token bảo mật
+      // TODO: Can cache access token if the expired time is short (1d). Can keep the memory way if the expired time is shorter.
       await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
 
       // Access token chỉ lưu trong memory
