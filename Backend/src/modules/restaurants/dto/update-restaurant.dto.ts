@@ -1,6 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  ValidateNested,
+  IsNumber,
+} from 'class-validator';
+
+class LocationDto {
+  @ApiProperty({ example: 40.7128 })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({ example: -74.006 })
+  @IsNumber()
+  longitude: number;
+}
 
 export class UpdateRestaurantDto {
   @ApiProperty({
@@ -45,28 +60,16 @@ export class UpdateRestaurantDto {
     required: false,
   })
   @IsOptional()
+  @IsString()
   image?: string;
 
+  @ApiProperty({ required: false })
   @IsOptional()
-  location?: { latitude: number; longitude: number };
+  @ValidateNested()
+  @Type(() => LocationDto)
+  location?: LocationDto;
 
-  @ApiProperty({
-    example: '40.7128',
-    description: 'Updated latitude of the restaurant',
-    required: false,
-  })
+  @ApiProperty({ required: false })
   @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  lat?: number;
-
-  @ApiProperty({
-    example: '-74.0060',
-    description: 'Updated longitude of the restaurant',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  lon?: number;
+  deletedAt?: Date;
 }
