@@ -1,5 +1,8 @@
 import { Step } from "@/types/types";
 
+// TODO: https://docs.expo.dev/router/reference/typed-routes/
+// Should split to specific files
+// E.g: router.ts
 export const ROUTES = {
   AUTH: {
     ROOT: "/(auth)",

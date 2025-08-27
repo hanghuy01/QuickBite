@@ -30,6 +30,7 @@ export default function RestaurantDetail() {
     );
   }
 
+  // TODO: The user can refresh?
   if (isError || !data) {
     return (
       <View style={styles.center}>

@@ -3,6 +3,7 @@ import { LoginForm, RegisterForm } from "@/schemas/auth";
 
 const AUTH_API_URL = "/auth";
 // API
+// TODO: API Payload type should be defined difference with form type
 export const loginApi = async (data: LoginForm) => {
   const res = await api.post(`${AUTH_API_URL}/login`, data);
   return res.data;

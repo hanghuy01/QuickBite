@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 // import { API_URL } from "@env";
 
 let logoutFn: (() => void) | null = null;
+// TODO: Not call any place?
 export const setLogoutFn = (fn: () => void) => {
   logoutFn = fn;
 };
@@ -62,6 +63,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    // TODO: If there are multiple requests with 401 same time?
 
     // Nếu token hết hạn và chưa retry => refresh
     if (error.response?.status === 401 && !originalRequest._retry) {

@@ -8,6 +8,8 @@ interface UseProtectedRouteOptions {
   redirectTo?: RouteString; // nếu không hợp lệ → redirect đến đây
 }
 
+
+// TODO: https://docs.expo.dev/router/advanced/authentication/
 export const useProtectedRoute = ({ allowedRoles, redirectTo }: UseProtectedRouteOptions = {}) => {
   const { user, loading } = useAuth();
   const router = useRouter();

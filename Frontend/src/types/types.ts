@@ -1,4 +1,5 @@
 // Type Restaurant
+// TODO: Should split to specific files
 export type Restaurant = {
   id: number;
   name: string;
