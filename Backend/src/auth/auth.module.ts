@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User } from './entities/user.entity';
 import { LocalStrategy } from './passport/local.strategy';
+import { JwtRefreshStrategy } from './passport/jwt-refresh.strategy';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { LocalStrategy } from './passport/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy, JwtRefreshStrategy],
   exports: [JwtModule, TypeOrmModule],
 })
 export class AuthModule {}

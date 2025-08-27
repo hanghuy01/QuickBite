@@ -14,10 +14,14 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { JwtRequest } from './types';
-import { Public } from '@/decorator/customize';
-import { LocalAuthGuard } from './passport/local-auth.guard';
+import { JwtPayload } from '@/common/types/payloads';
+import { Public } from '@/common/decorator/customize';
+import { LocalAuthGuard } from './passport/guard/local-auth.guard';
 import { User } from './entities/user.entity';
+import { JwtAuthGuard } from './passport/guard/jwt-auth.guard';
+import { RefreshAuthGuard } from './passport/guard/refresh-auth.guard';
+import { CurrentUser } from '@/common/decorator/current-user.decorator';
+import { LoginDto, LoginResponseDto } from './dto/login.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -37,7 +41,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 409, description: 'Email already registered' })
-  async register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto): Promise<{ message: string }> {
     return this.authService.register(dto);
   }
 
@@ -56,21 +60,39 @@ export class AuthController {
           name: 'Huy',
         },
         access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     },
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  login(@Request() req: { user: User }) {
+  login(
+    @Body() dto: LoginDto,
+    @Request() req: { user: User }
+  ): Promise<LoginResponseDto> {
     return this.authService.login(req.user);
   }
 
   @Post('refresh-token')
-  @Public()
-  refresh(@Body('refresh_token') refreshToken: string) {
-    return this.authService.getNewAccessToken(refreshToken);
+  @Public() // bỏ qua global JwtAuthGuard
+  @UseGuards(RefreshAuthGuard) // validate refresh token
+  @ApiOperation({ summary: 'Post new access token using refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully generated new access token',
+    schema: {
+      example: {
+        access_token: 'newAccessTokenHere...',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  refresh(@CurrentUser() payload: JwtPayload): { access_token: string } {
+    const { sub, email, role } = payload;
+    return this.authService.getNewAccessToken({ sub, email, role });
   }
 
   @Get('profile')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token') // 👈 cần token
   @ApiOperation({ summary: 'Get user profile from JWT token' })
   @ApiResponse({
@@ -89,8 +111,7 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized - Invalid or missing token',
   })
-  getProfile(@Request() req: JwtRequest) {
-    const userId = req.user.userId; // Lấy từ JWT payload
-    return this.authService.getProfile(userId);
+  getProfile(@CurrentUser() payload: JwtPayload): Promise<User> {
+    return this.authService.getProfile(String(payload.sub));
   }
 }

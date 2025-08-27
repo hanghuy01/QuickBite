@@ -5,6 +5,7 @@ import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { User } from '@/auth/entities/user.entity';
 import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
+import { OrderStatus } from '@/common/enums';
 
 @Injectable()
 export class OrdersService {
@@ -31,7 +32,7 @@ export class OrdersService {
       restaurant,
       totalAmount: dto.totalAmount,
       items: dto.items,
-      status: 'pending',
+      status: OrderStatus.PENDING,
     });
 
     return this.ordersRepo.save(order);
@@ -47,7 +48,7 @@ export class OrdersService {
     return order;
   }
 
-  async findMyOrder(userId: number) {
+  async findMyOrder(userId: string) {
     const order = await this.ordersRepo.find({
       where: { user: { id: userId } },
     });
@@ -55,7 +56,7 @@ export class OrdersService {
     return order;
   }
 
-  async updateStatus(orderId: string, status: string) {
+  async updateStatus(orderId: string, status: OrderStatus) {
     const order = await this.ordersRepo.findOne({
       where: { id: orderId },
     });

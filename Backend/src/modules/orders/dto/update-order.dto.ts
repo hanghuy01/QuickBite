@@ -1,5 +1,7 @@
+import { OrderStatus } from '@/common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class UpdateOrderDto {
   @ApiProperty({
@@ -7,6 +9,6 @@ export class UpdateOrderDto {
     description: 'Order status (pending, confirmed, delivered, cancelled)',
   })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @Column({ type: 'enum', enum: OrderStatus })
+  status: OrderStatus;
 }
