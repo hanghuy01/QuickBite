@@ -20,7 +20,7 @@ export const createRestaurant = async (data: CreateRestaurantForm) => {
 };
 
 export const updateRestaurant = async (id: number, data: Partial<Restaurant>) => {
-  const { menuItems, id: restaurantId, ...rest } = data;
+  const { menuItems, id: restaurantId, lat, lon, ...rest } = data;
   const res = await api.patch<Restaurant>(`${RESTAURANT_API_URL}/${id}`, { ...rest });
   return res.data;
 };

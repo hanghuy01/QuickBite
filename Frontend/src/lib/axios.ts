@@ -35,11 +35,15 @@ async function refreshAccessToken() {
       const { access_token: newAccessToken } = res;
 
       setAccessToken(newAccessToken);
-      refreshingPromise = null;
       return newAccessToken;
     })();
   }
-  return refreshingPromise;
+  try {
+    return await refreshingPromise;
+  } finally {
+    // chỉ reset sau khi tất cả await xong
+    refreshingPromise = null;
+  }
 }
 
 // == ======== Interceptors ==========

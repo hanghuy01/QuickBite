@@ -11,10 +11,15 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
-import { comparePasswordHelper, hashPasswordHelper } from '@/helpers/util';
-import { RefreshTokenPayload, UserProfile } from './types';
+import {
+  comparePasswordHelper,
+  hashPasswordHelper,
+} from '@/common/helpers/util';
 import { User } from './entities/user.entity';
 import { REDIS_CLIENT } from '@/redis/redis.provider';
+import { JwtPayload } from '@/common/types/payloads';
+import { LoginResponseDto } from './dto/login.dto';
+import { UserRole } from '@/common/enums';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +31,18 @@ export class AuthService {
     @Inject(REDIS_CLIENT) private readonly redisClient: Redis
   ) {}
 
-  async validateUser(email: string, password: string): Promise<User> {
+  async validateRefreshToken(
+    userId: string,
+    refreshToken: string
+  ): Promise<void> {
+    const storedToken = await this.redisClient.get(`refresh:${userId}`);
+
+    if (!storedToken || storedToken !== refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email },
     });
@@ -41,7 +57,7 @@ export class AuthService {
     return user;
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<{ message: string }> {
     const { email, password, name, role } = dto;
     const existing = await this.userRepository.findOne({ where: { email } });
     if (existing) {
@@ -52,18 +68,18 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       name,
-      role: role || 'USER',
+      role: role || UserRole.USER,
       password: hashedPassword,
     });
     await this.userRepository.save(user);
     return { message: 'User registered successfully' };
   }
 
-  async login(user: User) {
+  async login(user: User): Promise<LoginResponseDto> {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.config.get<string>('JWT_SECRET'),
+      secret: this.config.get<string>('JWT_REFRESH_SECRET'),
       expiresIn: this.config.get<string>('JWT_REFRESH_TOKEN_EXPIRED'),
     });
 
@@ -87,30 +103,15 @@ export class AuthService {
     };
   }
 
-  async getNewAccessToken(refreshToken: string) {
-    const payload = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
-      secret: this.config.get<string>('JWT_SECRET'),
-    });
+  getNewAccessToken(payload: JwtPayload): { access_token: string } {
     const { sub, email, role } = payload;
 
-    // Lấy refreshToken trong Redis ra
-    const storedToken = await this.redisClient.get(`refresh:${sub}`);
-    if (!storedToken || storedToken !== refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
     return {
-      access_token: this.jwtService.sign(
-        { sub, email, role },
-        {
-          secret: this.config.get<string>('JWT_SECRET'),
-          expiresIn: this.config.get<string>('JWT_ACCESS_TOKEN_EXPIRED'),
-        }
-      ),
+      access_token: this.jwtService.sign({ sub, email, role }),
     };
   }
 
-  async getProfile(userId: number): Promise<UserProfile> {
+  async getProfile(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: { id: true, name: true, email: true },

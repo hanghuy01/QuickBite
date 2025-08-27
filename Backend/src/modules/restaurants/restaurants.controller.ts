@@ -9,6 +9,8 @@ import {
   HttpStatus,
   HttpCode,
   Query,
+  ParseIntPipe,
+  ParseFloatPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,14 +19,16 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RestaurantsService } from './restaurants.service';
+import { DistanceResult, RestaurantsService } from './restaurants.service';
 import {
   CreateRestaurantDto,
   RestaurantResponseDto,
 } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
-import { Roles } from '@/auth/passport/roles.decorator';
+import { Roles } from '@/auth/passport/guard/roles.decorator';
+import { Restaurant } from './entities/restaurant.entity';
+import { UpdateResult } from 'typeorm';
 
 @ApiTags('restaurants')
 @Controller('restaurants')
@@ -36,7 +40,7 @@ export class RestaurantsController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Create a new restaurant (Admin only)' })
   @ApiResponse({ status: HttpStatus.CREATED, type: RestaurantResponseDto })
-  create(@Body() dto: CreateRestaurantDto) {
+  create(@Body() dto: CreateRestaurantDto): Promise<Restaurant> {
     return this.restaurantsService.create(dto);
   }
 
@@ -71,17 +75,21 @@ export class RestaurantsController {
       ],
     },
   })
-  findAll(@Query() query: FindAllRestaurantsDto) {
+  findAll(@Query() query: FindAllRestaurantsDto): Promise<Restaurant[]> {
     return this.restaurantsService.findAll(query);
   }
 
   @Get(':id/distance')
   getDistance(
-    @Param('id') id: number,
-    @Query('lat') lat: number,
-    @Query('lon') lon: number
-  ) {
-    return this.restaurantsService.getRestaurantDistance(id, lat, lon);
+    @Param('id', ParseIntPipe) id: number,
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lon', ParseFloatPipe) lon: number
+  ): Promise<DistanceResult> {
+    return this.restaurantsService.getRestaurantDistance({
+      id: id,
+      lat: lat,
+      lon: lon,
+    });
   }
 
   @Get(':id')
@@ -113,7 +121,7 @@ export class RestaurantsController {
       },
     },
   })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<Restaurant> {
     return this.restaurantsService.findOne(+id);
   }
 
@@ -136,13 +144,17 @@ export class RestaurantsController {
       },
     },
   })
-  update(@Param('id') id: string, @Body() dto: UpdateRestaurantDto) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateRestaurantDto
+  ): Promise<UpdateResult> {
     return this.restaurantsService.update(+id, dto);
   }
 
   @Delete(':id')
   @Roles(['ADMIN'])
   @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a restaurant (Admin only)' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
@@ -160,8 +172,7 @@ export class RestaurantsController {
       },
     },
   })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<void> {
     return this.restaurantsService.remove(+id);
   }
 }

@@ -10,13 +10,14 @@ import {
 import { MenuItemsService } from './menu.service';
 import { CreateMenuItemDto } from './dto/create-menu.dto';
 import { UpdateMenuItemDto } from './dto/update-menu.dto';
-import { Roles } from '@/auth/passport/roles.decorator';
+import { Roles } from '@/auth/passport/guard/roles.decorator';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import { MenuItem } from './entities/menu-item.entity';
 
 @Controller('menu-items')
 export class MenuItemsController {
@@ -46,7 +47,7 @@ export class MenuItemsController {
       },
     },
   })
-  create(@Body() dto: CreateMenuItemDto) {
+  create(@Body() dto: CreateMenuItemDto): Promise<MenuItem> {
     return this.menuItemsService.create(dto);
   }
 
@@ -71,7 +72,7 @@ export class MenuItemsController {
       ],
     },
   })
-  findAll() {
+  findAll(): Promise<MenuItem[]> {
     return this.menuItemsService.findAll();
   }
 
@@ -95,7 +96,7 @@ export class MenuItemsController {
     },
   })
   @ApiResponse({ status: 404, description: 'Menu item not found' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<MenuItem> {
     return this.menuItemsService.findOne(+id);
   }
 
@@ -109,7 +110,10 @@ export class MenuItemsController {
     description: 'Menu item updated successfully',
   })
   @ApiResponse({ status: 404, description: 'Menu item not found' })
-  update(@Param('id') id: string, @Body() dto: UpdateMenuItemDto) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateMenuItemDto
+  ): Promise<MenuItem> {
     return this.menuItemsService.update(+id, dto);
   }
 
@@ -122,7 +126,7 @@ export class MenuItemsController {
     description: 'Menu item deleted successfully',
   })
   @ApiResponse({ status: 404, description: 'Menu item not found' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<void> {
     return this.menuItemsService.remove(+id);
   }
 }

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  DeleteDateColumn,
+} from 'typeorm';
 import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
 import { Order } from '@/modules/orders/entities/order.entity';
 
@@ -36,4 +42,7 @@ export class Restaurant {
 
   @OneToMany(() => Order, (order) => order.restaurant)
   orders: Order[];
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }

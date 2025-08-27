@@ -2,7 +2,7 @@ import { DataSource, DeepPartial } from 'typeorm';
 import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
 import { MenuItem } from '@/modules/menu/entities/menu-item.entity';
 import { User } from '@/modules/users/entities/user.entity';
-import { hashPasswordHelper } from '@/helpers/util';
+import { hashPasswordHelper } from '@/common/helpers/util';
 
 export async function seedRestaurants(dataSource: DataSource) {
   const restaurantRepo = dataSource.getRepository(Restaurant);

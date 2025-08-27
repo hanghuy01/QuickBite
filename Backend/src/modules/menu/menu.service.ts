@@ -22,10 +22,7 @@ export class MenuItemsService {
     if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     const menuItem = this.menuItemRepo.create({
-      name: dto.name,
-      price: dto.price,
-      description: dto.description,
-      image: dto.image,
+      ...dto,
       restaurant,
     });
 
@@ -61,7 +58,9 @@ export class MenuItemsService {
   }
 
   async remove(id: number) {
-    const menuItem = await this.findOne(id);
-    return this.menuItemRepo.remove(menuItem);
+    const menuItem = await this.menuItemRepo.findOne({ where: { id } });
+    if (!menuItem) throw new NotFoundException('Menu item not found');
+
+    await this.menuItemRepo.remove(menuItem);
   }
 }

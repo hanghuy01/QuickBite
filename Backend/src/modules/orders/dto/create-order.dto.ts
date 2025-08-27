@@ -1,5 +1,7 @@
+import { OrderStatus } from '@/common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class OrderItemDto {
   @ApiProperty({ example: 1, description: 'ID of the menu item' })
@@ -14,8 +16,8 @@ export class CreateOrderDto {
     example: 101,
     description: 'ID of the user placing the order',
   })
-  @IsNumber()
-  userId: number;
+  @IsString()
+  userId: string;
 
   @ApiProperty({ example: 55, description: 'ID of the restaurant' })
   @IsNumber()
@@ -45,7 +47,8 @@ export class OrderResponseDto {
   items: OrderItemDto[];
 
   @ApiProperty({ example: 'pending' })
-  status: string;
+  @Column({ type: 'enum', enum: OrderStatus })
+  status: OrderStatus;
 
   @ApiProperty({ example: 250000 })
   totalAmount: number;

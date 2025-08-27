@@ -8,6 +8,12 @@ import {
 } from 'typeorm';
 import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
 import { User } from '@/modules/users/entities/user.entity';
+import { OrderStatus } from '@/common/enums';
+
+class OrderItem {
+  menuItemId: number;
+  quantity: number;
+}
 
 @Entity()
 export class Order {
@@ -15,10 +21,10 @@ export class Order {
   id: string;
 
   @Column({ type: 'jsonb' })
-  items: any[]; // [{ menuItemId: number, quantity: number }]
+  items: OrderItem[];
 
-  @Column({ default: 'pending' })
-  status: string; // pending, confirmed, delivered, cancelled
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  status: OrderStatus;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   totalAmount: number;
@@ -29,11 +35,9 @@ export class Order {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
-    eager: true,
-  })
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders)
   restaurant: Restaurant;
 
-  @ManyToOne(() => User, (user) => user.orders, { eager: true })
+  @ManyToOne(() => User, (user) => user.orders)
   user: User;
 }
