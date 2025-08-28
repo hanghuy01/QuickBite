@@ -19,16 +19,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { UpdateResult } from 'typeorm';
 import { DistanceResult, RestaurantsService } from './restaurants.service';
-import {
-  CreateRestaurantDto,
-  RestaurantResponseDto,
-} from './dto/create-restaurant.dto';
+import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { FindAllRestaurantsDto } from './dto/findAll-retaurant.dto';
 import { Roles } from '@/auth/passport/guard/roles.decorator';
-import { Restaurant } from './entities/restaurant.entity';
-import { UpdateResult } from 'typeorm';
+import { RestaurantResponseDto } from './dto/retaurant-response.dto';
 
 @ApiTags('restaurants')
 @Controller('restaurants')
@@ -40,7 +37,7 @@ export class RestaurantsController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Create a new restaurant (Admin only)' })
   @ApiResponse({ status: HttpStatus.CREATED, type: RestaurantResponseDto })
-  create(@Body() dto: CreateRestaurantDto): Promise<Restaurant> {
+  create(@Body() dto: CreateRestaurantDto): Promise<RestaurantResponseDto> {
     return this.restaurantsService.create(dto);
   }
 
@@ -75,7 +72,9 @@ export class RestaurantsController {
       ],
     },
   })
-  findAll(@Query() query: FindAllRestaurantsDto): Promise<Restaurant[]> {
+  findAll(
+    @Query() query: FindAllRestaurantsDto
+  ): Promise<RestaurantResponseDto[]> {
     return this.restaurantsService.findAll(query);
   }
 
@@ -121,7 +120,7 @@ export class RestaurantsController {
       },
     },
   })
-  findOne(@Param('id') id: string): Promise<Restaurant> {
+  findOne(@Param('id') id: string): Promise<RestaurantResponseDto> {
     return this.restaurantsService.findOne(+id);
   }
 

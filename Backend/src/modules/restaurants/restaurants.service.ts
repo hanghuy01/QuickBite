@@ -46,12 +46,12 @@ export class RestaurantsService {
     latUser: number,
     lonUser: number,
     latRestaurant: number,
-    lonRestaurant: number,
-    speedKmh: number = 30 // mặc định xe máy 30 km/h
+    lonRestaurant: number
   ) {
     const EXTRA_BUFFER_MINUTES = 15; // thêm 15 phút cho thời gian di chuyển
     const ROUNDING_DECIMAL = 10; // để làm tròn 1 chữ số thập phân
     const SECONDS_IN_MINUTE = 60;
+    const speedKmh = 30; // mặc định xe máy 30 km/h
     const EARTH_RADIUS = 6371; // km
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const dLat = toRadians(latRestaurant - latUser);

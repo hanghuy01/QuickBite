@@ -17,7 +17,8 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { MenuItem } from './entities/menu-item.entity';
+import { MenuItemResponseDto } from './dto/menu-item-response.dto';
+import { UpdateResult } from 'typeorm';
 
 @Controller('menu-items')
 export class MenuItemsController {
@@ -47,7 +48,7 @@ export class MenuItemsController {
       },
     },
   })
-  create(@Body() dto: CreateMenuItemDto): Promise<MenuItem> {
+  create(@Body() dto: CreateMenuItemDto): Promise<MenuItemResponseDto> {
     return this.menuItemsService.create(dto);
   }
 
@@ -72,7 +73,7 @@ export class MenuItemsController {
       ],
     },
   })
-  findAll(): Promise<MenuItem[]> {
+  findAll(): Promise<MenuItemResponseDto[]> {
     return this.menuItemsService.findAll();
   }
 
@@ -96,7 +97,7 @@ export class MenuItemsController {
     },
   })
   @ApiResponse({ status: 404, description: 'Menu item not found' })
-  findOne(@Param('id') id: string): Promise<MenuItem> {
+  findOne(@Param('id') id: string): Promise<MenuItemResponseDto> {
     return this.menuItemsService.findOne(+id);
   }
 
@@ -113,7 +114,7 @@ export class MenuItemsController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateMenuItemDto
-  ): Promise<MenuItem> {
+  ): Promise<UpdateResult> {
     return this.menuItemsService.update(+id, dto);
   }
 

@@ -3,7 +3,7 @@ import { Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Card, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Restaurant } from "@/types/types";
+import { Restaurant } from "@/types/restaurant";
 import { ROUTES } from "@/routes";
 import CreateOrEditRestaurantModal, { FormValuesRes } from "@/components/admin/CreateOrEditRestaurantModal";
 import { RestaurantItem } from "@/components/admin/RestaurantItem";

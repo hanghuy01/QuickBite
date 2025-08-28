@@ -39,26 +39,3 @@ export class CreateMenuItemDto {
   @IsNotEmpty()
   restaurantId: number;
 }
-
-export class MenuItemResponseDto {
-  @ApiProperty({ example: 1 })
-  id: number;
-
-  @ApiProperty({ example: 'Margherita Pizza' })
-  name: string;
-
-  @ApiProperty({ example: 9.99 })
-  price: number;
-
-  @ApiProperty({
-    example: 'Classic Italian pizza with fresh basil',
-    required: false,
-  })
-  description?: string;
-
-  @ApiProperty({ example: 'https://example.com/pizza.jpg', required: false })
-  image?: string;
-
-  @ApiProperty({ example: 12 })
-  restaurantId: number;
-}
