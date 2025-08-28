@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet } from "react-native";
-import { Searchbar, Chip, Text, ActivityIndicator, Title } from "react-native-paper";
+import { Searchbar, Chip, Text, ActivityIndicator } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRestaurants } from "@/api/restaurant";
 import { Restaurant } from "@/types/types";
 import { getUserLocation } from "@/utils/location";
 import RestaurantCard from "@/components/RestaurantCard";
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/routes";
 import { router } from "expo-router";
 
 const CATEGORIES = ["All", "Pizza", "Sushi", "Drinks"];
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <Title style={styles.sectionTitle}>Nearby Restaurants</Title>
+      <Text style={styles.sectionTitle}>Nearby Restaurants</Text>
 
       {isLoading ? (
         <ActivityIndicator color="#FF5722" />
@@ -80,8 +80,8 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <RestaurantCard
               restaurant={item}
-              coords={coords}
-              onPress={() => router.push(ROUTES.RESTAURANT.DETAILS(item.id))}
+              coordUser={coords}
+              onPress={() => router.push(ROUTES.USER.RESTAURANT.DETAILS(item.id))}
             />
           )}
           ListEmptyComponent={<Text>No restaurant found</Text>}

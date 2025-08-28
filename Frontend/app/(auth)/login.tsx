@@ -6,7 +6,8 @@ import { useRouter } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginForm, loginSchema } from "@/schemas/auth";
 import { useAuth } from "@/contexts/AuthContext";
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/routes";
+import AuthBackground from "@/components/AuthBackground";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <>
+    <AuthBackground>
       {/* Email */}
       <Controller
         control={control}
@@ -78,7 +79,7 @@ export default function LoginScreen() {
       <Button mode="text" onPress={() => router.push(ROUTES.AUTH.REGISTER)} textColor="#FF5722">
         Chưa có tài khoản? Đăng ký
       </Button>
-    </>
+    </AuthBackground>
   );
 }
 

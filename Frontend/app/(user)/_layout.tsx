@@ -1,12 +1,8 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ROUTES } from "@/constants";
-import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 
 export default function TabsLayout() {
-  useProtectedRoute({ redirectTo: ROUTES.AUTH.LOGIN });
-
   const commonScreenOptions = {
     headerShown: true,
     tabBarActiveTintColor: "#FF5722",
@@ -60,6 +56,18 @@ export default function TabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="orders/track/[id]"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="restaurant/[id]"
+        options={{
+          href: null, // Ẩn khỏi tab bar
         }}
       />
     </Tabs>

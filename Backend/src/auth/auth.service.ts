@@ -114,7 +114,7 @@ export class AuthService {
   async getProfile(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, role: true },
     });
 
     if (!user) throw new NotFoundException('User not found');

@@ -46,8 +46,12 @@ export class RestaurantsService {
     latUser: number,
     lonUser: number,
     latRestaurant: number,
-    lonRestaurant: number
+    lonRestaurant: number,
+    speedKmh: number = 30 // mặc định xe máy 30 km/h
   ) {
+    const EXTRA_BUFFER_MINUTES = 15; // thêm 15 phút cho thời gian di chuyển
+    const ROUNDING_DECIMAL = 10; // để làm tròn 1 chữ số thập phân
+    const SECONDS_IN_MINUTE = 60;
     const EARTH_RADIUS = 6371; // km
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const dLat = toRadians(latRestaurant - latUser);
@@ -57,9 +61,17 @@ export class RestaurantsService {
       Math.cos(toRadians(latUser)) *
         Math.cos(toRadians(latRestaurant)) *
         Math.sin(dLon / 2) ** 2;
+
     const angularDistance =
       2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
-    return EARTH_RADIUS * angularDistance;
+    const distanceKm =
+      Math.round(EARTH_RADIUS * angularDistance * ROUNDING_DECIMAL) /
+      ROUNDING_DECIMAL;
+
+    const timeMinutes =
+      Math.ceil((distanceKm / speedKmh) * SECONDS_IN_MINUTE) +
+      EXTRA_BUFFER_MINUTES;
+    return { distanceKm, durationMin: timeMinutes };
   }
 
   async getRouteInfo(
@@ -147,7 +159,15 @@ export class RestaurantsService {
     }
 
     //  Nếu chưa có cache → gọi OSRM
-    const distance = await this.getRouteInfo(
+    // const distance = await this.getRouteInfo(
+    //   lat,
+    //   lon,
+    //   restaurant.location.latitude,
+    //   restaurant.location.longitude
+    // );
+
+    // đường chim bay
+    const distance = this.getDistanceKm(
       lat,
       lon,
       restaurant.location.latitude,

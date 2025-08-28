@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { MenuItem } from "@/types/types";
+import { MenuItem } from "@/types/menu";
 
 const MENU_ITEM_API_URL = "/menu-items";
 

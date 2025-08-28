@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { ROUTES } from "@/constants";
-import { Title, Card, List, Button, Text } from "react-native-paper";
+import { ROUTES } from "@/routes";
+import { Card, List, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,7 +12,7 @@ export default function AdminDashboard() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Title style={styles.title}>Admin Dashboard</Title>
+      <Text style={styles.title}>Admin Dashboard</Text>
 
       <View style={styles.topRow}>
         <Text style={styles.hello}>Hello, {user?.name || "Admin"} 👋</Text>

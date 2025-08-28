@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
 import { CreateRestaurantForm } from "@/schemas/restaurant";
-import { MenuItem, Restaurant } from "@/types/types";
+import { MenuItem } from "@/types/menu";
+import { Restaurant } from "@/types/restaurant";
 
 const RESTAURANT_API_URL = "/restaurants";
 

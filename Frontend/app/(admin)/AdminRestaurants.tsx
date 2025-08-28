@@ -1,49 +1,24 @@
 import React, { useState } from "react";
-import { Alert, Image, StyleSheet, View } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { Title, Card, List, Button } from "react-native-paper";
+import { Card, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRestaurant, deleteRestaurant, fetchRestaurants, updateRestaurant } from "@/api/restaurant";
 import { Restaurant } from "@/types/types";
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/routes";
 import CreateOrEditRestaurantModal, { FormValuesRes } from "@/components/admin/CreateOrEditRestaurantModal";
+import { RestaurantItem } from "@/components/admin/RestaurantItem";
+import { useCreateRestaurant, useDeleteRestaurant, useRestaurants, useUpdateRestaurant } from "@/hooks/useRestaurants";
 
 export default function AdminRestaurants() {
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [visible, setVisible] = useState(false);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant>();
 
-  // Fetch restaurants
-  const { data: restaurants } = useQuery<Restaurant[]>({
-    queryKey: ["restaurants"],
-    queryFn: () => fetchRestaurants(),
-  });
-
-  // Mutation
-  const createMutation = useMutation({
-    mutationFn: createRestaurant,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurants"] }); // refresh list
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (data: Restaurant) =>
-      updateRestaurant(data.id, { ...data, location: { latitude: data.lat, longitude: data.lon } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurants"] });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteRestaurant(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurants"] });
-    },
-  });
+  const { data: restaurants } = useRestaurants();
+  const createMutation = useCreateRestaurant();
+  const updateMutation = useUpdateRestaurant();
+  const deleteMutation = useDeleteRestaurant();
 
   // handle modal
   const openAddModal = () => {
@@ -72,37 +47,29 @@ export default function AdminRestaurants() {
   };
 
   const handleDelete = (id: number) => {
-    Alert.alert("Xác nhận xoá", `Bạn có chắc chắn muốn xoá nhà hàng này không?`, [
-      { text: "Hủy", style: "cancel" },
-      { text: "Xoá", style: "destructive", onPress: () => deleteMutation.mutate(id) },
+    Alert.alert("Confirm delete", "Are you sure you want to delete this restaurant?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => deleteMutation.mutate(id) },
     ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Title style={styles.title}>Quản lý Nhà hàng</Title>
+      <Text style={styles.title}>Restaurant Management</Text>
 
       <Button mode="contained" onPress={openAddModal} style={{ marginBottom: 12 }}>
-        Thêm nhà hàng
+        Add Restaurant
       </Button>
 
       <Card>
         <Card.Content>
           {restaurants?.map((r) => (
-            <List.Item
+            <RestaurantItem
               key={r.id}
-              title={r.name}
-              description="Xem & quản lý menu"
-              onPress={() => router.push(ROUTES.ADMIN.RESTAURANT_MENU(r.id) as any)}
-              left={() => <Image source={{ uri: r.image }} style={{ width: 40, height: 40, borderRadius: 8 }} />}
-              right={() => (
-                <View style={{ flexDirection: "row" }}>
-                  <Button onPress={() => openEditModal(r)}>Sửa</Button>
-                  <Button compact onPress={() => handleDelete(r.id)} textColor="red">
-                    Xoá
-                  </Button>
-                </View>
-              )}
+              restaurant={r}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+              onPress={(id) => router.push(ROUTES.ADMIN.RESTAURANT_MENU(id))}
             />
           ))}
         </Card.Content>

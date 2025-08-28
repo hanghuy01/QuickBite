@@ -4,7 +4,7 @@ import { Card, Text } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
 import { fetchMyOrder } from "@/api/orders";
 import { Link } from "expo-router";
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/routes";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function OrdersScreen() {
@@ -25,8 +25,8 @@ export default function OrdersScreen() {
         renderItem={({ item }) => (
           <Link
             href={{
-              pathname: "/orders/track/[id]",
-              params: { id: String(item.id), from: ROUTES.TABS.ORDERS }, // thêm from
+              pathname: ROUTES.USER.ORDER.TRACK(item.id) as any,
+              params: { from: ROUTES.USER.ORDERS },
             }}
             asChild
           >
