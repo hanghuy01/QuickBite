@@ -22,6 +22,7 @@ import { JwtAuthGuard } from './passport/guard/jwt-auth.guard';
 import { RefreshAuthGuard } from './passport/guard/refresh-auth.guard';
 import { CurrentUser } from '@/common/decorator/current-user.decorator';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -111,7 +112,7 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized - Invalid or missing token',
   })
-  getProfile(@CurrentUser() payload: JwtPayload): Promise<User> {
-    return this.authService.getProfile(String(payload.sub));
+  getProfile(@CurrentUser() payload: JwtPayload): Promise<UserResponseDto> {
+    return this.authService.getProfile(payload.sub);
   }
 }
