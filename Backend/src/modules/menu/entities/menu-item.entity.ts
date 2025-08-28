@@ -1,5 +1,11 @@
 // src/menu-items/entities/menu-item.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity()
@@ -23,4 +29,7 @@ export class MenuItem {
     onDelete: 'CASCADE',
   })
   restaurant: Restaurant;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }

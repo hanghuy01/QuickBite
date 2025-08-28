@@ -64,23 +64,3 @@ export class CreateRestaurantDto {
   @IsNumber()
   lon?: number;
 }
-
-export class RestaurantResponseDto {
-  @ApiProperty({ example: 'c9f5d8b2-1a2b-4c3d-9e0f-123456789abc' })
-  id: string;
-
-  @ApiProperty({ example: 'Pizza Palace' })
-  name: string;
-
-  @ApiProperty({ example: 'Best pizza in town' })
-  description: string;
-
-  @ApiProperty({ example: '180/77 Nguyen Huu Canh' })
-  address: string;
-
-  @ApiProperty({ example: 'https://example.com/pizza.jpg' })
-  imageUrl: string;
-
-  @ApiProperty({ type: [String], example: [] })
-  menu: string[];
-}
