@@ -15,6 +15,7 @@ import { CreateUserDto, UserResponseDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { UpdateResult } from 'typeorm';
 
 @ApiBearerAuth()
 @Controller('users')
@@ -52,7 +53,7 @@ export class UsersController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateUserDto
-  ): Promise<User> {
+  ): Promise<UpdateResult> {
     return this.usersService.update(id, dto);
   }
 

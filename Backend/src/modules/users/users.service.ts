@@ -28,9 +28,11 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    const user = await this.findOne(id);
-    Object.assign(user, dto);
-    return this.usersRepo.save(user);
+    const result = await this.usersRepo.update(id, dto);
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+    return result; // UpdateResult (không có entity)
   }
 
   async remove(id: string) {
