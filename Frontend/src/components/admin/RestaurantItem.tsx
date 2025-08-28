@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Image } from "react-native";
 import { Button, List } from "react-native-paper";
-import { Restaurant } from "@/types/types";
+import { Restaurant } from "@/types/restaurant";
 
 type Props = {
   restaurant: Restaurant;
