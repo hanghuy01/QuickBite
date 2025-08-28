@@ -1,8 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { queryClient } from "@/lib/react-query";
 
 function InnerLayout() {
   const { user, loading } = useAuth();
@@ -28,7 +29,7 @@ function InnerLayout() {
 export default function RootLayout() {
   return (
     <PaperProvider>
-      <QueryClientProvider client={new QueryClient()}>
+      <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>
             <InnerLayout />
