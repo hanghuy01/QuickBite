@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Text, Button } from "react-native-paper";
 import { ORDER_STEPS } from "@/constants";
-import { Order } from "@/types/types";
+import { Order } from "@/types/order";
 
 type OrderCardProps = {
   order: Order;

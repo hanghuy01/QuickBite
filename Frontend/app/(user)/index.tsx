@@ -3,7 +3,7 @@ import { View, FlatList, StyleSheet } from "react-native";
 import { Searchbar, Chip, Text, ActivityIndicator } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRestaurants } from "@/api/restaurant";
-import { Restaurant } from "@/types/types";
+import { Restaurant } from "@/types/restaurant";
 import { getUserLocation } from "@/utils/location";
 import RestaurantCard from "@/components/RestaurantCard";
 import { ROUTES } from "@/routes";

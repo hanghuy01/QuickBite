@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
-import { Restaurant } from "@/types/types";
+import { Restaurant } from "@/types/restaurant";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDistance } from "@/api/restaurant";
 
