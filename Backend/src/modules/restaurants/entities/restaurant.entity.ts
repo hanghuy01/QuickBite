@@ -35,7 +35,7 @@ export class Restaurant {
   image: string;
 
   @OneToMany(() => MenuItem, (menuItem) => menuItem.restaurant, {
-    cascade: true,
+    cascade: ['insert', 'update'],
     onDelete: 'CASCADE',
   })
   menuItems: MenuItem[];
