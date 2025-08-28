@@ -2,14 +2,15 @@ import React, { useMemo, useState } from "react";
 import { View, StyleSheet, ActivityIndicator, FlatList } from "react-native";
 import { Appbar, Searchbar, Text } from "react-native-paper";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { Route, router, useLocalSearchParams } from "expo-router";
 import { fetchOrders, updateOrderStatusApi } from "@/api/orders";
 import OrderCard from "@/components/OrderCard";
-import { ORDER_STEPS, RouteString } from "@/constants";
-import { Order } from "@/types/types";
+
+import { Order } from "@/types/order";
+import { ORDER_STEPS } from "@/constants";
 
 export default function AdminOrderTracking() {
-  const { from } = useLocalSearchParams<{ from?: RouteString }>();
+  const { from } = useLocalSearchParams<{ from?: Route }>();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 

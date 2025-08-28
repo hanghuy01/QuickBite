@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useRouter } from "expo-router";
+import { ROUTES } from "@/routes";
 
 export default function NotFoundScreen() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function NotFoundScreen() {
       </Text>
       <Text style={styles.subtitle}>Trang bạn đang tìm không tồn tại hoặc đã bị xóa.</Text>
 
-      <Button mode="contained" onPress={() => router.replace("/(tabs)")} style={{ marginTop: 20 }}>
+      <Button mode="contained" onPress={() => router.replace(ROUTES.USER.ROOT)} style={{ marginTop: 20 }}>
         Về trang chủ
       </Button>
     </View>

@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 type CartItem = {
   menuItemId: number;
@@ -58,59 +58,79 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [state]);
 
   // tính tổng giá giỏ hàng
-  const recalc = (items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const recalc = useCallback((items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0), []);
 
-  const addItem = (item: CartItem) => {
-    setState((prev) => {
-      // Nếu có restaurantId khác, reset lại giỏ hàng (vì liên quan đến shipping)
-      if (prev.restaurantId && prev.restaurantId !== item.restaurantId) {
-        return { items: [item], restaurantId: item.restaurantId, total: item.price * item.quantity };
-      }
-      const idx = prev.items.findIndex((i) => i.menuItemId === item.menuItemId); // tìm món ăn có trong giỏ hàng
-      const nextItems = [...prev.items]; // cart items cũ
-      if (idx >= 0) {
-        nextItems[idx] = { ...nextItems[idx], quantity: nextItems[idx].quantity + item.quantity };
-      } else {
-        nextItems.push(item);
-      }
-      return { items: nextItems, restaurantId: item.restaurantId, total: recalc(nextItems) };
-    });
-  };
-
-  const decreaseItem = (menuItemId: number) => {
-    setState((prev) => {
-      // tìm món ăn có trong giỏ hàng
-      const idx = prev.items.findIndex((i) => i.menuItemId === menuItemId);
-
-      // Nếu không tìm thấy món ăn, trả về trạng thái cũ
-      if (idx < 0) return prev;
-
-      // Giảm số lượng món ăn trong giỏ hàng
-      const nextItems = [...prev.items];
-      if (nextItems[idx].quantity > 1) {
-        nextItems[idx] = { ...nextItems[idx], quantity: nextItems[idx].quantity - 1 };
-      } else {
-        nextItems.splice(idx, 1);
-      }
-      return { items: nextItems, restaurantId: nextItems.length ? prev.restaurantId : null, total: recalc(nextItems) };
-    });
-  };
-
-  const removeItem = (menuItemId: number) => {
-    setState((prev) => {
-      // Tìm món ăn không có menuItemId
-      const nextItems = prev.items.filter((i) => i.menuItemId !== menuItemId);
-      return { items: nextItems, restaurantId: nextItems.length ? prev.restaurantId : null, total: recalc(nextItems) };
-    });
-  };
-
-  const clearCart = () => setState({ items: [], restaurantId: null, total: 0 });
-
-  return (
-    <CartContext.Provider value={{ state, addItem, decreaseItem, removeItem, clearCart }}>
-      {children}
-    </CartContext.Provider>
+  const addItem = useCallback(
+    (item: CartItem) => {
+      setState((prev) => {
+        // Nếu có restaurantId khác, reset lại giỏ hàng (vì liên quan đến shipping)
+        if (prev.restaurantId && prev.restaurantId !== item.restaurantId) {
+          return { items: [item], restaurantId: item.restaurantId, total: item.price * item.quantity };
+        }
+        const idx = prev.items.findIndex((i) => i.menuItemId === item.menuItemId); // tìm món ăn có trong giỏ hàng
+        const nextItems = [...prev.items]; // cart items cũ
+        if (idx >= 0) {
+          nextItems[idx] = { ...nextItems[idx], quantity: nextItems[idx].quantity + item.quantity };
+        } else {
+          nextItems.push(item);
+        }
+        return { items: nextItems, restaurantId: item.restaurantId, total: recalc(nextItems) };
+      });
+    },
+    [recalc]
   );
+
+  const decreaseItem = useCallback(
+    (menuItemId: number) => {
+      setState((prev) => {
+        const idx = prev.items.findIndex((i) => i.menuItemId === menuItemId);
+        if (idx < 0) return prev;
+
+        const nextItems = [...prev.items];
+        if (nextItems[idx].quantity > 1) {
+          nextItems[idx] = {
+            ...nextItems[idx],
+            quantity: nextItems[idx].quantity - 1,
+          };
+        } else {
+          nextItems.splice(idx, 1);
+        }
+        return {
+          items: nextItems,
+          restaurantId: nextItems.length ? prev.restaurantId : null,
+          total: recalc(nextItems),
+        };
+      });
+    },
+    [recalc]
+  );
+
+  const removeItem = useCallback(
+    (menuItemId: number) => {
+      setState((prev) => {
+        const nextItems = prev.items.filter((i) => i.menuItemId !== menuItemId);
+        return {
+          items: nextItems,
+          restaurantId: nextItems.length ? prev.restaurantId : null,
+          total: recalc(nextItems),
+        };
+      });
+    },
+    [recalc]
+  );
+
+  const clearCart = useCallback(() => {
+    setState({ items: [], restaurantId: null, total: 0 });
+  }, []);
+
+  // Memoize context value để không tạo object mới mỗi render
+
+  const value = useMemo(
+    () => ({ state, addItem, decreaseItem, removeItem, clearCart }),
+    [state, addItem, decreaseItem, removeItem, clearCart]
+  );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export const useCart = () => {

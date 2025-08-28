@@ -1,29 +1,28 @@
-import { ROUTES } from "@/constants";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import { PaperProvider } from "react-native-paper";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Slot, useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { PaperProvider } from "react-native-paper";
 
 function InnerLayout() {
-  const { loading, user } = useAuth();
-  const router = useRouter();
+  const { user, loading } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
-  useEffect(() => {
-    if (loading) return;
+  if (loading) return <></>;
 
-    if (!user) {
-      router.replace(ROUTES.AUTH.LOGIN);
-    } else if (user?.role === "ADMIN") {
-      router.replace(ROUTES.ADMIN.ROOT);
-    } else {
-      router.replace(ROUTES.TABS.ROOT);
-    }
-  }, [loading, router, user]);
-
-  if (loading) return null;
-  return <Slot />;
+  return (
+    <Stack>
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={isAdmin}>
+        <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(user)" options={{ headerShown: false }} />
+      </Stack.Protected>
+    </Stack>
+  );
 }
 
 export default function RootLayout() {

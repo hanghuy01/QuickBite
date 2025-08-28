@@ -1,25 +1,25 @@
 import React from "react";
 import { View, FlatList } from "react-native";
 import { Appbar, Button, Card, Text } from "react-native-paper";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Route, router, Stack, useLocalSearchParams } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCart } from "@/contexts/CartContext";
 import { createOrder } from "@/api/orders";
-import { ROUTES, RouteString } from "@/constants";
+import { ROUTES } from "@/routes";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function CartScreen() {
   const { user } = useAuth();
   const { state, removeItem, clearCart } = useCart();
   const qc = useQueryClient();
-  const { from } = useLocalSearchParams<{ from?: RouteString }>();
+  const { from } = useLocalSearchParams<{ from?: Route }>();
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createOrder,
     onSuccess: (order) => {
       clearCart();
       qc.invalidateQueries({ queryKey: ["orders"] }); // Cập nhật danh sách đơn hàng đã cũ
-      router.push(ROUTES.ORDER.TRACK(order.id));
+      router.push(ROUTES.USER.ORDER.TRACK(order.id));
     },
   });
 

@@ -1,8 +1,8 @@
-import { loginApi, registerApi } from "@/api/auth.api";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { setAccessToken } from "@/lib/axios";
+import { logoutEmitter } from "@/events/logoutEvents";
+import { loginApi, profileApi, registerApi } from "@/api/auth.api";
 
 type User = { id: number; email: string; name: string; role: "ADMIN" | "USER" } | null;
 
@@ -17,6 +17,7 @@ interface AuthContextType {
 
 const USER_KEY = "user";
 const REFRESH_TOKEN_KEY = "refresh_token";
+const ACCESS_TOKEN_KEY = "access_token";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -25,16 +26,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const isLoggedIn = !!user;
 
-  // Load user & refresh_token khi mở app
+  // Load user & refresh_token when open app
   useEffect(() => {
     const loadAuth = async () => {
       try {
-        const user = await AsyncStorage.getItem(USER_KEY);
-        if (user) {
-          setUser(JSON.parse(user));
+        const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+        if (!refreshToken) return;
+
+        // help no loading flash
+        const storedUser = await AsyncStorage.getItem(USER_KEY);
+        if (storedUser) setUser(JSON.parse(storedUser));
+
+        const res = await profileApi();
+        if (res) {
+          setUser(res);
+          await AsyncStorage.setItem(USER_KEY, JSON.stringify(res));
         }
       } catch (err) {
         console.error("Load auth error", err);
+        setUser(null);
+        await AsyncStorage.removeItem(USER_KEY);
+        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
       } finally {
         setLoading(false);
       }
@@ -55,11 +68,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
       setUser(user);
 
-      // Lưu refresh_token bảo mật
+      // Lưu access_token và refresh_token bảo mật
       await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
-
-      // Access token chỉ lưu trong memory
-      setAccessToken(access_token);
+      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
     } catch (err) {
       console.error("Login error", err);
       throw err;
@@ -79,12 +90,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setUser(null);
-    setAccessToken(undefined);
     await AsyncStorage.removeItem(USER_KEY);
+    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-  };
+  }, []);
+
+  useEffect(() => {
+    logoutEmitter.on("logout", logout);
+    return () => {
+      logoutEmitter.off("logout", logout);
+    };
+  }, [logout]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, register, logout, loading }}>

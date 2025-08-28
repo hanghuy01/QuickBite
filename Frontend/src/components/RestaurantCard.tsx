@@ -9,14 +9,17 @@ import { fetchDistance } from "@/api/restaurant";
 type Props = {
   restaurant: Restaurant;
   onPress?: () => void;
-  coords?: { lat: number; lon: number };
+  coordUser?: { lat: number; lon: number };
 };
 
-export default function RestaurantCard({ restaurant, onPress, coords }: Props) {
+export default function RestaurantCard({ restaurant, onPress, coordUser }: Props) {
   const { data: distanceData } = useQuery({
-    queryKey: ["restaurant-distance", restaurant.id, coords],
-    queryFn: () => fetchDistance(restaurant.id, coords!.lat, coords!.lon),
-    enabled: !!coords, // chỉ chạy khi có coords
+    queryKey: ["restaurant-distance", restaurant.id, coordUser],
+    queryFn: () => {
+      if (!coordUser?.lat || !coordUser?.lon) return undefined;
+      return fetchDistance(restaurant.id, coordUser.lat, coordUser.lon);
+    },
+    enabled: !!coordUser?.lat && !!coordUser?.lon, // chỉ chạy khi có coordUser
     staleTime: 5 * 60 * 1000,
   });
 

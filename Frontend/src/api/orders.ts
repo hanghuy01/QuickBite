@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { CreateOrderDto, Order } from "@/types/types";
+import { CreateOrderDto, Order } from "@/types/order";
 
 const ORDER_API_URL = "/orders";
 

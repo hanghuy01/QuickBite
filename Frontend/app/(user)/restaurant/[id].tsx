@@ -1,19 +1,19 @@
 import React from "react";
 import { View, StyleSheet, FlatList, Image, ActivityIndicator } from "react-native";
 import { Text, Button, Card } from "react-native-paper";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCart } from "@/contexts/CartContext";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRestaurant } from "@/api/restaurant";
-import { Restaurant } from "@/types/types";
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/routes";
+import { Restaurant } from "@/types/restaurant";
 
 export default function RestaurantDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, addItem, decreaseItem } = useCart();
   const router = useRouter();
 
-  const { data, isLoading, isError } = useQuery<Restaurant>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<Restaurant>({
     queryKey: ["restaurant", id],
     queryFn: () => fetchRestaurant(id),
     enabled: !!id,
@@ -34,12 +34,21 @@ export default function RestaurantDetail() {
     return (
       <View style={styles.center}>
         <Text>Error loading restaurant</Text>
+        <Button onPress={() => refetch()} loading={isFetching}>
+          Retry
+        </Button>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: false, // Ẩn header mặc định của tab
+        }}
+      />
+
       {/* Banner */}
       <Image source={{ uri: data.image }} style={styles.banner} />
 
@@ -53,6 +62,8 @@ export default function RestaurantDetail() {
       <FlatList
         data={data.menuItems}
         keyExtractor={(item) => item.id.toString()}
+        refreshing={isFetching}
+        onRefresh={refetch}
         renderItem={({ item }) => {
           const qty = getQuantity(item.id);
           return (
@@ -104,8 +115,8 @@ export default function RestaurantDetail() {
         style={styles.cartButton}
         onPress={() =>
           router.push({
-            pathname: ROUTES.TABS.CART,
-            params: { from: ROUTES.RESTAURANT.DETAILS(+id) },
+            pathname: ROUTES.USER.CART,
+            params: { from: ROUTES.USER.RESTAURANT.DETAILS(+id) },
           })
         }
       >

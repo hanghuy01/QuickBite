@@ -7,8 +7,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { fetchRestaurant } from "@/api/restaurant";
 import MenuItemModal, { FormValues } from "@/components/admin/MenuItemModal";
-import { MenuItem, Restaurant } from "@/types/types";
 import { addMenuItem, deleteMenuItem, editMenuItem } from "@/api/menuItem.api";
+import { MenuItem } from "@/types/menu";
+import { Restaurant } from "@/types/restaurant";
 
 export default function RestaurantMenu() {
   const { id } = useLocalSearchParams<{ id: string }>();
