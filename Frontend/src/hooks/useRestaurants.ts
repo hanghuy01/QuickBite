@@ -1,11 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRestaurant, deleteRestaurant, fetchRestaurants, updateRestaurant } from "@/api/restaurant";
+import {
+  createRestaurant,
+  deleteRestaurant,
+  fetchRestaurant,
+  fetchRestaurants,
+  updateRestaurant,
+} from "@/api/restaurant";
 import { Restaurant } from "@/types/restaurant";
 
 export function useRestaurants() {
   return useQuery<Restaurant[]>({
     queryKey: ["restaurants"],
     queryFn: () => fetchRestaurants(),
+  });
+}
+
+export function useRestaurant(id?: string) {
+  return useQuery<Restaurant>({
+    queryKey: ["restaurant", id],
+    queryFn: () => fetchRestaurant(id as string),
+    enabled: !!id,
   });
 }
 

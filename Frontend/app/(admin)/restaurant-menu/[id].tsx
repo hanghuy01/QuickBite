@@ -3,49 +3,20 @@ import { View, Alert, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Card, List, Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { fetchRestaurant } from "@/api/restaurant";
 import MenuItemModal, { FormValues } from "@/components/admin/MenuItemModal";
-import { addMenuItem, deleteMenuItem, editMenuItem } from "@/api/menuItem.api";
 import { MenuItem } from "@/types/menu";
-import { Restaurant } from "@/types/restaurant";
+import { useRestaurant } from "@/hooks/useRestaurants";
+import { useMenuItemMutations } from "@/hooks/useMenuItem";
 
 export default function RestaurantMenu() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [visible, setVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem>();
 
-  const { data } = useQuery<Restaurant>({
-    queryKey: ["restaurant", id],
-    queryFn: () => fetchRestaurant(id),
-    enabled: !!id,
-  });
-
-  // Mutations
-  const addMutation = useMutation({
-    mutationFn: addMenuItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurant", id] });
-    },
-  });
-
-  const editMutation = useMutation({
-    mutationFn: (data: MenuItem) => editMenuItem(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurant", id] });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteMenuItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["restaurant", id] });
-    },
-  });
+  const { data } = useRestaurant(id);
+  const { add, edit, remove } = useMenuItemMutations(id!);
 
   const openAddModal = () => {
     setEditingItem(undefined);
@@ -61,9 +32,9 @@ export default function RestaurantMenu() {
   const handleSubmit = (data: FormValues) => {
     const restaurantId = +id;
     if (editingItem) {
-      editMutation.mutate({ ...data, id: editingItem.id });
+      edit.mutate({ ...data, id: editingItem.id });
     } else {
-      addMutation.mutate({ ...data, restaurantId });
+      add.mutate({ ...data, restaurantId });
     }
     setVisible(false);
   };
@@ -71,7 +42,7 @@ export default function RestaurantMenu() {
   const handleDelete = (id: number) => {
     Alert.alert("Xoá món", `Bạn có chắc muốn xoá món này?`, [
       { text: "Hủy", style: "cancel" },
-      { text: "Xoá", style: "destructive", onPress: () => deleteMutation.mutate(id) },
+      { text: "Xoá", style: "destructive", onPress: () => remove.mutate(id) },
     ]);
   };
 
