@@ -24,6 +24,16 @@ export class FindAllRestaurantsDto {
   @Min(-180)
   @Max(180)
   lon?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(1)
+  limit?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  offset?: number;
 }
 
 export class GetRestaurantDistanceDto {

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import {
   GetRestaurantDistanceDto,
 } from './dto/findAll-retaurant.dto';
 import Redis from 'ioredis';
+import { RestaurantResponseDto } from './dto/retaurant-response.dto';
 
 interface OSRMRoute {
   distance: number;
@@ -115,19 +117,28 @@ export class RestaurantsService {
     }
   }
 
-  create(dto: CreateRestaurantDto) {
+  async create(dto: CreateRestaurantDto): Promise<RestaurantResponseDto> {
+    const { lat, lon, ...rest } = dto;
     const restaurant = this.restaurantRepo.create({
-      ...dto,
-      location: {
-        latitude: dto.lat,
-        longitude: dto.lon,
-      },
+      ...rest,
+      location: lat && lon ? { latitude: lat, longitude: lon } : null,
     });
-    return this.restaurantRepo.save(restaurant);
+    try {
+      return await this.restaurantRepo.save(restaurant);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      }
+      throw new InternalServerErrorException(
+        'Unexpected error while creating restaurant'
+      );
+    }
   }
 
-  async findAll(query: FindAllRestaurantsDto) {
-    const { q, category } = query;
+  async findAll(
+    query: FindAllRestaurantsDto
+  ): Promise<RestaurantResponseDto[]> {
+    const { q, category, limit = 20, offset = 0 } = query;
 
     const qb = this.restaurantRepo.createQueryBuilder('restaurant');
 
@@ -138,24 +149,43 @@ export class RestaurantsService {
     if (category) {
       qb.andWhere('restaurant.category = :category', { category });
     }
+
+    qb.take(limit).skip(offset);
+
     return qb.getMany();
   }
 
-  async getRestaurantDistance(dto: GetRestaurantDistanceDto) {
+  async getRestaurantDistance(
+    dto: GetRestaurantDistanceDto
+  ): Promise<DistanceResult> {
     const { id, lat, lon } = dto;
+
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
-    if (!restaurant) throw new BadRequestException('Restaurant not found');
+    if (!restaurant) throw new NotFoundException(`Restaurant ${id} not found`);
+
+    const latitude = parseFloat(lat.toString());
+    const longitude = parseFloat(lon.toString());
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      throw new BadRequestException('Invalid latitude/longitude');
+    }
 
     const DISTANCE_CACHE_TTL = 300; // 5 minutes
-    const roundedLat = Number(lat).toFixed(3);
-    const roundedLon = Number(lon).toFixed(3);
+    const roundedLat = latitude.toFixed(3);
+    const roundedLon = longitude.toFixed(3);
     // Tạo cache key duy nhất cho (user → restaurant)
     const cacheKey = `distance:${id}:${roundedLat}:${roundedLon}`;
 
     // Kiểm tra cache
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached) as DistanceResult;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached) as DistanceResult;
+      }
+    } catch (e) {
+      console.warn(
+        `Redis unavailable, skipping cache: ${e instanceof Error ? e.message : e}`
+      );
     }
 
     //  Nếu chưa có cache → gọi OSRM
@@ -174,39 +204,57 @@ export class RestaurantsService {
       restaurant.location.longitude
     );
 
-    const result = { restaurantId: id, distance };
+    const result: DistanceResult = { restaurantId: id, distance };
 
     // Lưu vào Redis TTL = 5 phút
 
-    await this.redis.set(
-      cacheKey,
-      JSON.stringify(result),
-      'EX',
-      DISTANCE_CACHE_TTL
-    );
+    try {
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(result),
+        'EX',
+        DISTANCE_CACHE_TTL
+      );
+    } catch (e) {
+      console.warn(`Redis set failed: ${e instanceof Error ? e.message : e}`);
+    }
 
     return result;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<RestaurantResponseDto> {
     const restaurant = await this.restaurantRepo.findOne({
       where: { id },
       relations: {
         menuItems: true,
       },
     });
-    if (!restaurant) throw new NotFoundException('Restaurant not found');
+    if (!restaurant) {
+      throw new NotFoundException(`Restaurant with id ${id} not found`);
+    }
     return restaurant;
   }
 
   async update(id: number, dto: UpdateRestaurantDto) {
-    return await this.restaurantRepo.update(id, dto);
+    const restaurant = await this.restaurantRepo.findOne({ where: { id } });
+    if (!restaurant) {
+      throw new NotFoundException(`Restaurant with id ${id} not found`);
+    }
+
+    try {
+      return await this.restaurantRepo.update(id, dto);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      }
+      throw new InternalServerErrorException('Unexpected error occurred');
+    }
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void> {
     const result = await this.restaurantRepo.softDelete(id);
     if (result.affected === 0) {
-      throw new NotFoundException('Restaurant not found');
+      throw new NotFoundException(`Restaurant with id ${id} not found`);
     }
   }
 }

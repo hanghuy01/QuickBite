@@ -6,6 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { User } from '@/auth/entities/user.entity';
 import { Restaurant } from '@/modules/restaurants/entities/restaurant.entity';
 import { OrderStatus } from '@/common/enums';
+import { OrderResponseDto } from './dto/order-response.dto';
 
 @Injectable()
 export class OrdersService {
@@ -16,7 +17,7 @@ export class OrdersService {
     private restaurantsRepo: Repository<Restaurant>
   ) {}
 
-  async create(dto: CreateOrderDto) {
+  async create(dto: CreateOrderDto): Promise<OrderResponseDto> {
     const user = await this.usersRepo.findOne({
       where: { id: dto.userId },
     });
@@ -38,25 +39,28 @@ export class OrdersService {
     return this.ordersRepo.save(order);
   }
 
-  async findAll() {
+  async findAll(): Promise<OrderResponseDto[]> {
     return this.ordersRepo.find();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<OrderResponseDto> {
     const order = await this.ordersRepo.findOne({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
-  async findMyOrder(userId: string) {
-    const order = await this.ordersRepo.find({
+  async findMyOrder(userId: string): Promise<OrderResponseDto[]> {
+    const orders = await this.ordersRepo.find({
       where: { user: { id: userId } },
     });
-    if (!order) throw new NotFoundException('Order not found');
-    return order;
+    if (!orders) throw new NotFoundException('Orders not found');
+    return orders;
   }
 
-  async updateStatus(orderId: string, status: OrderStatus) {
+  async updateStatus(
+    orderId: string,
+    status: OrderStatus
+  ): Promise<OrderResponseDto> {
     const order = await this.ordersRepo.findOne({
       where: { id: orderId },
     });

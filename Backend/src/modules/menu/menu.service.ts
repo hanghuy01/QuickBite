@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { MenuItem } from './entities/menu-item.entity';
 import { CreateMenuItemDto } from './dto/create-menu.dto';
 import { UpdateMenuItemDto } from './dto/update-menu.dto';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { MenuItemResponseDto } from './dto/menu-item-response.dto';
 
 @Injectable()
 export class MenuItemsService {
@@ -15,7 +16,7 @@ export class MenuItemsService {
     private restaurantRepo: Repository<Restaurant>
   ) {}
 
-  async create(dto: CreateMenuItemDto) {
+  async create(dto: CreateMenuItemDto): Promise<MenuItemResponseDto> {
     const restaurant = await this.restaurantRepo.findOne({
       where: { id: dto.restaurantId },
     });
@@ -34,7 +35,7 @@ export class MenuItemsService {
     };
   }
 
-  async findAll() {
+  async findAll(): Promise<MenuItemResponseDto[]> {
     const items = await this.menuItemRepo.find({
       relations: {
         restaurant: true,
@@ -46,7 +47,7 @@ export class MenuItemsService {
     }));
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<MenuItemResponseDto> {
     const menuItem = await this.menuItemRepo.findOne({
       where: { id },
       relations: {
@@ -60,14 +61,14 @@ export class MenuItemsService {
     };
   }
 
-  async update(id: number, dto: UpdateMenuItemDto) {
+  async update(id: number, dto: UpdateMenuItemDto): Promise<UpdateResult> {
     const result = await this.menuItemRepo.update(id, dto);
     if (result.affected === 0)
       throw new NotFoundException('Menu item not found');
     return result;
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void> {
     const menuItem = await this.menuItemRepo.softDelete(id);
     if (!menuItem) {
       throw new NotFoundException('menuItem not found');
