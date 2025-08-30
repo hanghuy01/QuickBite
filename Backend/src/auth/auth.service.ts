@@ -16,7 +16,7 @@ import {
   hashPasswordHelper,
 } from '@/common/helpers/util';
 import { User } from './entities/user.entity';
-import { REDIS_CLIENT } from '@/redis/redis.provider';
+import { REDIS_CLIENT } from '@/modules/redis/redis.provider';
 import { JwtPayload } from '@/common/types/payloads';
 import { LoginResponseDto } from './dto/login.dto';
 import { UserRole } from '@/common/enums';

@@ -16,6 +16,7 @@ import {
 } from './dto/findAll-retaurant.dto';
 import Redis from 'ioredis';
 import { RestaurantResponseDto } from './dto/retaurant-response.dto';
+import { SearchService } from '../elasticsearch/search.service';
 
 interface OSRMRoute {
   distance: number;
@@ -40,7 +41,8 @@ export class RestaurantsService {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepo: Repository<Restaurant>,
-    @Inject('REDIS_CLIENT') private readonly redis: Redis
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+    private searchService: SearchService
   ) {}
 
   // Khoảng cách theo đường chim bay
@@ -140,19 +142,16 @@ export class RestaurantsService {
   ): Promise<RestaurantResponseDto[]> {
     const { q, category, limit = 20, offset = 0 } = query;
 
-    const qb = this.restaurantRepo.createQueryBuilder('restaurant');
+    // if (q) {
+    //   // search theo ILIKE
+    //   // qb.where('restaurant.name ILIKE :q', { q: `%${q}%` });
 
-    if (q) {
-      qb.where('restaurant.name ILIKE :q', { q: `%${q}%` });
-    }
+    //   qb.where(`similarity(restaurant.name, :q) > 0.3`, { q });
+    //   qb.orderBy(`similarity(restaurant.name, :q)`, 'DESC');
+    // }
 
-    if (category) {
-      qb.andWhere('restaurant.category = :category', { category });
-    }
-
-    qb.take(limit).skip(offset);
-
-    return qb.getMany();
+    // Nếu có query q → gọi Elasticsearch
+    return this.searchService.searchRestaurants(q, category, limit, offset);
   }
 
   async getRestaurantDistance(

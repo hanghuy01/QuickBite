@@ -9,7 +9,8 @@ import { RestaurantsModule } from '@/modules/restaurants/restaurants.module';
 import { JwtAuthGuard } from './auth/passport/guard/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/passport/guard/roles.guard';
-import { RedisModule } from './redis/redis.module';
+import { RedisModule } from './modules/redis/redis.module';
+import { ElasticModule } from './modules/elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { RedisModule } from './redis/redis.module';
     OrdersModule,
     RestaurantsModule,
     RedisModule,
+    ElasticModule,
   ],
   providers: [
     {
