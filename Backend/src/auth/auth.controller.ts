@@ -23,6 +23,7 @@ import { RefreshAuthGuard } from './passport/guard/refresh-auth.guard';
 import { CurrentUser } from '@/common/decorator/current-user.decorator';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { UserRole } from '@/common/enums';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -104,7 +105,7 @@ export class AuthController {
         id: '68877a2b82aae013b94fee3e',
         email: 'test@gmail.com',
         name: 'Huy',
-        role: 'USER',
+        role: UserRole.USER,
       },
     },
   })

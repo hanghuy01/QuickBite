@@ -16,10 +16,11 @@ import {
   hashPasswordHelper,
 } from '@/common/helpers/util';
 import { User } from './entities/user.entity';
-import { REDIS_CLIENT } from '@/redis/redis.provider';
+import { REDIS_CLIENT } from '@/modules/redis/redis.provider';
 import { JwtPayload } from '@/common/types/payloads';
 import { LoginResponseDto } from './dto/login.dto';
 import { UserRole } from '@/common/enums';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -111,7 +112,7 @@ export class AuthService {
     };
   }
 
-  async getProfile(userId: string) {
+  async getProfile(userId: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: { id: true, name: true, email: true, role: true },
